@@ -1,10 +1,11 @@
 import React from 'react';
-import { ScrollView, StyleSheet, ImageSourcePropType } from 'react-native';
+import { ScrollView, StyleSheet, ImageSourcePropType, View, Text } from 'react-native';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { CategoryCard } from '@/components/home/CategoryCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
+import PhurnLogo from '@/assets/logos/phurn.svg';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'HomeScreen'>;
 
@@ -40,6 +41,12 @@ const categories: Category[] = [
 export function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaWrapper>
+      <View style={styles.header}>
+        <PhurnLogo width={40} height={40} fill="#E85D3F" />
+        <Text style={styles.headerText}>
+          PHURN
+        </Text>
+      </View>
       <SearchBar />
       <ScrollView style={styles.container}>
         {categories.map((category) => (
@@ -63,5 +70,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  headerText: {
+    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#E85D3F',
   },
 });

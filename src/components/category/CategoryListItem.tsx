@@ -1,6 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet } from 'react-native';
+import { List, useTheme } from 'react-native-paper';
 
 interface Props {
   title: string;
@@ -8,27 +8,113 @@ interface Props {
   hasSubcategories?: boolean;
 }
 
+type CategoryType = keyof typeof subCategoryMap;
+
+const subCategoryMap = {
+  'Tables': [
+    'Coffee Tables',
+    'Console Tables',
+    'Dining Tables',
+    'End and Side Tables',
+  ],
+  'Seating': [
+    'Sofas',
+    'Chairs',
+    'Ottomans',
+    'Benches',
+  ],
+  'Storage': [
+    'Cabinets',
+    'Bookcases',
+    'TV Stands',
+    'Dressers',
+  ],
+  'Beds': [
+    'Platform Beds',
+    'Canopy Beds',
+    'Daybeds',
+    'Headboards',
+  ],
+  'Decor': [
+    'Mirrors',
+    'Wall Art',
+    'Vases',
+    'Throw Pillows',
+  ],
+  'Accent': [
+    'Side Tables',
+    'Accent Chairs',
+    'Console Tables',
+    'Poufs',
+  ],
+} as const;
+
 export function CategoryListItem({ title, onPress, hasSubcategories = false }: Props) {
+  const theme = useTheme();
+  const categoryKey = title.replace(/\s+/g, '') as CategoryType;
+  const subCategories = hasSubcategories ? subCategoryMap[categoryKey] || [] : [];
+
+  if (hasSubcategories) {
+    return (
+      <List.Accordion
+        title={title}
+        style={styles.accordion}
+        titleStyle={styles.title}
+        theme={{
+          ...theme,
+          colors: {
+            ...theme.colors,
+            primary: '#E85D3F',
+          },
+        }}
+      >
+        {subCategories.map((subCategory) => (
+          <List.Item
+            key={subCategory}
+            title={subCategory}
+            onPress={() => onPress()}
+            style={styles.subItem}
+            titleStyle={styles.subItemTitle}
+            right={props => <List.Icon {...props} icon="chevron-right" />}
+          />
+        ))}
+      </List.Accordion>
+    );
+  }
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Text style={styles.title}>{title}</Text>
-      {hasSubcategories && <Ionicons name="chevron-forward" size={20} color="#666" />}
-    </TouchableOpacity>
+    <List.Item
+      title={title}
+      onPress={onPress}
+      style={styles.item}
+      titleStyle={styles.title}
+      right={props => <List.Icon {...props} icon="chevron-right" />}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+  accordion: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  item: {
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
   title: {
     fontSize: 16,
-    color: '#333',
+    color: '#333333',
+    fontWeight: '500',
+  },
+  subItem: {
+    paddingLeft: 32,
+    backgroundColor: '#F8F8F8',
+  },
+  subItemTitle: {
+    fontSize: 14,
+    color: '#666666',
   },
 });

@@ -19,5 +19,6 @@ export function SafeAreaWrapper({ children }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginBottom: -34,
   },
 });

@@ -31,6 +31,7 @@ export function TabNavigator() {
         headerShown: false,
         tabBarStyle: {
           paddingTop: 12,
+          marginBottom: -4,
         },
       })}
     >
