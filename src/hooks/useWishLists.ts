@@ -1,6 +1,16 @@
 import { useState, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { WishList } from '@/types/wishlist';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/navigation/types';
+
+interface WishList {
+  id: string;
+  name: string;
+  itemCount: number;
+  thumbnails: string[];
+}
+
+type NavigationType = NativeStackNavigationProp<RootStackParamList>;
 
 const mockWishLists: WishList[] = [
   {
@@ -33,23 +43,40 @@ const mockWishLists: WishList[] = [
 ];
 
 export function useWishLists() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationType>();
   const [isLoading, setIsLoading] = useState(false);
   const [wishLists, setWishLists] = useState<WishList[]>(mockWishLists);
 
   const refreshWishLists = useCallback(async () => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // TODO: Implement actual API call
+    } catch (error) {
+      console.error('Error refreshing wish lists:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const navigateToWishList = useCallback((id: string) => {
     navigation.navigate('WishListDetail', { id });
   }, [navigation]);
 
-  const createNewWishList = useCallback(() => {
-    // Implement create new wish list logic
+  const createNewWishList = useCallback(async () => {
+    try {
+      // TODO: Implement create new wish list logic
+      const newWishList: WishList = {
+        id: String(Date.now()),
+        name: 'New Wish List',
+        itemCount: 0,
+        thumbnails: [],
+      };
+      setWishLists((prev) => [...prev, newWishList]);
+    } catch (error) {
+      console.error('Error creating wish list:', error);
+    }
   }, []);
 
   return {

@@ -4,6 +4,7 @@ import { Text, Appbar } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { WishListCard } from '@/components/wishlist/WishListCard';
 import { useWishLists } from '@/hooks/useWishLists';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export function WishListsScreen() {
   const { 

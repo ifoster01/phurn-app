@@ -4,11 +4,18 @@ import { Appbar } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { CategoryListItem } from '@/components/category/CategoryListItem';
-import { NavigationProps } from '@/navigation/types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/types';
 
-type Props = NavigationProps<'CategoryList'>;
+type Props = NativeStackScreenProps<HomeStackParamList, 'CategoryList'>;
 
-const categories = [
+interface Category {
+  id: string;
+  title: string;
+  hasSubcategories?: boolean;
+}
+
+const categories: Category[] = [
   { id: 'all', title: 'Shop All Furniture' },
   { id: 'accent', title: 'Accent Furniture', hasSubcategories: true },
   { id: 'beds', title: 'Beds', hasSubcategories: true },
@@ -35,7 +42,7 @@ export function CategoryListScreen({ navigation, route }: Props) {
             title={item.title}
             hasSubcategories={item.hasSubcategories}
             onPress={() => navigation.navigate('ProductList', { 
-              category: category,
+              category,
               subcategory: item.id 
             })}
           />

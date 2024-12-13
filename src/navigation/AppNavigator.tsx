@@ -4,7 +4,7 @@ import { LoginScreen } from '@/screens/auth/LoginScreen';
 import { ForgotPasswordScreen } from '@/screens/auth/ForgotPasswordScreen';
 import { SignupScreen } from '@/screens/auth/SignupScreen';
 import { TabNavigator } from './TabNavigator';
-import { WishListDetailScreen } from '@/screens/WishListDetailScreen';
+import { WishListsScreen } from '@/screens/WishListsScreen';
 import { RootStackParamList } from './types';
 import { useAuthStore } from '@/store/auth';
 
@@ -31,7 +31,7 @@ export function AppNavigator() {
           <Stack.Screen name="Tabs" component={TabNavigator} />
           <Stack.Screen 
             name="WishListDetail" 
-            component={WishListDetailScreen}
+            component={WishListsScreen}
             options={{
               headerShown: true,
               title: 'Wish List',

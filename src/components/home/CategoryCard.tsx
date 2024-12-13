@@ -1,16 +1,16 @@
 import React from 'react';
-import { TouchableOpacity, ImageBackground, Text, StyleSheet, Dimensions } from 'react-native';
+import { TouchableOpacity, ImageBackground, Text, StyleSheet, Dimensions, ImageSourcePropType } from 'react-native';
 
 interface Props {
   title: string;
-  image: string;
+  image: ImageSourcePropType;
   onPress: () => void;
 }
 
 export function CategoryCard({ title, image, onPress }: Props) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <ImageBackground source={{ uri: image }} style={styles.image}>
+      <ImageBackground source={image} style={styles.image} resizeMode="cover">
         <Text style={styles.title}>{title}</Text>
       </ImageBackground>
     </TouchableOpacity>
@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 8,
     overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
   },
   image: {
     flex: 1,

@@ -4,12 +4,21 @@ import { Appbar } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
-import { NavigationProps } from '@/navigation/types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/navigation/types';
 
-type Props = NavigationProps<'ProductList'>;
+type Props = NativeStackScreenProps<HomeStackParamList, 'ProductList'>;
+
+interface Product {
+  id: string;
+  title: string;
+  brand: string;
+  price: number;
+  image: string;
+}
 
 // Mock data - replace with actual API call
-const products = [
+const products: Product[] = [
   {
     id: '1',
     title: 'Lorraine Marble Coffee Table 36"',
@@ -60,7 +69,7 @@ export function ProductListScreen({ navigation, route }: Props) {
     <SafeAreaWrapper>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Coffee Tables" />
+        <Appbar.Content title={subcategory ? `${subcategory} Tables` : 'Products'} />
         <Appbar.Action icon="tune" onPress={() => {}} />
       </Appbar.Header>
       <SearchBar />

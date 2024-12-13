@@ -3,15 +3,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { HomeNavigator } from './HomeNavigator';
 import { WishListsScreen } from '@/screens/WishListsScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
+import { TabParamList } from './types';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
+
+type IconName = keyof typeof Ionicons.glyphMap;
 
 export function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName: IconName = 'home';
 
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
@@ -24,24 +27,27 @@ export function TabNavigator() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#E85D3F',
-        tabBarInactiveTintColor: '#666666',
+        tabBarInactiveTintColor: '#E85D3F',
         headerShown: false,
+        tabBarStyle: {
+          paddingTop: 12,
+        },
       })}
     >
       <Tab.Screen 
         name="HomeTab" 
         component={HomeNavigator} 
-        options={{ title: 'Home' }}
+        options={{ title: '' }}
       />
       <Tab.Screen 
         name="WishLists" 
         component={WishListsScreen} 
-        options={{ title: 'Wish Lists' }}
+        options={{ title: '' }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileScreen} 
-        options={{ title: 'Profile' }}
+        options={{ title: '' }}
       />
     </Tab.Navigator>
   );
