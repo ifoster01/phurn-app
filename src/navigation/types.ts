@@ -19,8 +19,9 @@ export type TabParamList = {
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
-  CategoryList: { category: string };
+  CategoryList: { category: string; subcategory?: string };
   ProductList: { category: string; subcategory?: string };
+  RoomList: undefined;
 };
 
 export type NavigationProps<T extends keyof RootStackParamList> = {

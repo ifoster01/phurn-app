@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { List, useTheme } from 'react-native-paper';
+import { subCategoryMap } from '@/constants/categories';
 
 interface Props {
   title: string;
@@ -9,45 +10,6 @@ interface Props {
 }
 
 type CategoryType = keyof typeof subCategoryMap;
-
-const subCategoryMap = {
-  'Tables': [
-    'Coffee Tables',
-    'Console Tables',
-    'Dining Tables',
-    'End and Side Tables',
-  ],
-  'Seating': [
-    'Sofas',
-    'Chairs',
-    'Ottomans',
-    'Benches',
-  ],
-  'Storage': [
-    'Cabinets',
-    'Bookcases',
-    'TV Stands',
-    'Dressers',
-  ],
-  'Beds': [
-    'Platform Beds',
-    'Canopy Beds',
-    'Daybeds',
-    'Headboards',
-  ],
-  'Decor': [
-    'Mirrors',
-    'Wall Art',
-    'Vases',
-    'Throw Pillows',
-  ],
-  'Accent': [
-    'Side Tables',
-    'Accent Chairs',
-    'Console Tables',
-    'Poufs',
-  ],
-} as const;
 
 export function CategoryListItem({ title, onPress, hasSubcategories = false }: Props) {
   const theme = useTheme();

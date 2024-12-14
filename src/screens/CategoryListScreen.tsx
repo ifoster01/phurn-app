@@ -6,37 +6,31 @@ import { SearchBar } from '@/components/common/SearchBar';
 import { CategoryListItem } from '@/components/category/CategoryListItem';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
+import { CategoryType, RoomType, categories, roomCategories } from '@/constants/categories';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'CategoryList'>;
 
-interface Category {
-  id: string;
-  title: string;
-  hasSubcategories?: boolean;
-}
-
-const categories: Category[] = [
-  { id: 'all', title: 'Shop All Furniture' },
-  { id: 'accent', title: 'Accent Furniture', hasSubcategories: true },
-  { id: 'beds', title: 'Beds', hasSubcategories: true },
-  { id: 'decor', title: 'Decor', hasSubcategories: true },
-  { id: 'seating', title: 'Seating', hasSubcategories: true },
-  { id: 'storage', title: 'Storage', hasSubcategories: true },
-  { id: 'tables', title: 'Tables', hasSubcategories: true },
-];
-
 export function CategoryListScreen({ navigation, route }: Props) {
-  const { category } = route.params;
+  const { category, subcategory } = route.params;
+
+  // If we have a subcategory and it's a room type, show room-specific categories
+  const items = subcategory && category === 'room' && isRoomType(subcategory)
+    ? roomCategories[subcategory]
+    : categories[category as CategoryType] || [];
+
+  const categoryTitle = subcategory 
+    ? subcategory.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')
+    : category[0].toUpperCase() + category.slice(1);
 
   return (
     <SafeAreaWrapper>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Shop By Type" />
+        <Appbar.Content title={`Shop By ${categoryTitle}`} />
       </Appbar.Header>
       <SearchBar />
       <ScrollView style={styles.container}>
-        {categories.map((item) => (
+        {items.map((item) => (
           <CategoryListItem
             key={item.id}
             title={item.title}
@@ -50,6 +44,11 @@ export function CategoryListScreen({ navigation, route }: Props) {
       </ScrollView>
     </SafeAreaWrapper>
   );
+}
+
+// Type guard to check if a string is a valid RoomType
+function isRoomType(value: string): value is RoomType {
+  return ['living-room', 'bedroom', 'dining-room', 'office'].includes(value);
 }
 
 const styles = StyleSheet.create({

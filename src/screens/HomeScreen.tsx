@@ -36,6 +36,11 @@ const categories: Category[] = [
     title: 'Shop By Room', 
     image: require('@/assets/images/categories/shop-by-room.png')
   },
+  { 
+    id: 'brand',
+    title: 'Shop By Brand', 
+    image: require('@/assets/images/categories/brand-img.jpeg')
+  },
 ];
 
 export function HomeScreen({ navigation }: Props) {
@@ -54,11 +59,19 @@ export function HomeScreen({ navigation }: Props) {
             key={category.id}
             title={category.title}
             image={category.image}
-            onPress={() => 
-              navigation.navigate('CategoryList', { 
-                category: category.id 
-              })
-            }
+            onPress={() => {
+              if (category.id === 'new') {
+                navigation.navigate('ProductList', {
+                  category: category.id
+                })
+              } else if (category.id === 'room') {
+                navigation.navigate('RoomList')
+              } else {
+                navigation.navigate('CategoryList', {
+                  category: category.id
+                })
+              }
+            }}
           />
         ))}
       </ScrollView>
