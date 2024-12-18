@@ -79,18 +79,21 @@ export type Database = {
           furniture_id: string
           id: string
           user_id: string | null
+          wishlist_name: string | null
         }
         Insert: {
           created_at?: string
           furniture_id?: string
           id: string
           user_id?: string | null
+          wishlist_name?: string | null
         }
         Update: {
           created_at?: string
           furniture_id?: string
           id?: string
           user_id?: string | null
+          wishlist_name?: string | null
         }
         Relationships: [
           {
@@ -107,7 +110,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_user: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

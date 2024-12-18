@@ -7,11 +7,10 @@ import { useTheme } from 'react-native-paper'
 export const AppleButton = () => {
     const theme = useTheme()
     const { signInWithApple } = useAuth()
-    const [error, setError] = useState<string | null>(null)
 
     const handleApplePress = async () => {
         try {
-            setError(null)
+            console.log('Signing in with Apple')
             await signInWithApple()
         } catch (err) {
             console.error('Apple sign in error:', err)

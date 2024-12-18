@@ -1,70 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { Appbar, IconButton, Text } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
-import { useFavorites } from '@/hooks/useFavorites';
-import { useNavigation } from '@react-navigation/native';
+import { useFurniture } from '@/hooks/api/useFurniture';
+import { useWishlists } from '@/hooks/api/useWishlists';
+import { AddToWishlistModal } from '@/components/wishlist/AddToWishlistModal';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'ProductList'>;
-
-interface Product {
-  id: string;
-  title: string;
-  brand: string;
-  price: number;
-  image: string;
-}
-
-// Mock data - replace with actual API call
-const products: Product[] = [
-  {
-    id: '1',
-    title: 'Lorraine Marble Coffee Table 36"',
-    brand: 'West Elm',
-    price: 899,
-    image: 'https://cb2.scene7.com/is/image/CB2/CevaLtBlueVelvetSofaSHF23/$web_plp_card$/240215085233/ceva-light-blue-performance-velvet-sofa.jpg',
-  },
-  {
-    id: '2',
-    title: 'Nadine Shearling Accent Chair with Marble Legs by goop',
-    brand: 'CB2',
-    price: 1799,
-    image: 'https://cb2.scene7.com/is/image/CB2/NadineShrlgAcntChrWMbLgsSHF24/$web_plp_card$/241214084127/NadineShrlgAcntChrWMbLgsSHF24.jpg',
-  },
-  {
-    id: '3',
-    title: 'Kareen Coffee Table',
-    brand: 'AllModern',
-    price: 1549,
-    image: 'https://example.com/table3.jpg',
-  },
-  {
-    id: '4',
-    title: 'Lenia 46" Storage Coffee Table - Walnut',
-    brand: 'Article',
-    price: 499,
-    image: 'https://example.com/table4.jpg',
-  },
-];
 
 export function ProductListScreen({ navigation, route }: Props) {
   const { category, subcategory } = route.params;
   const { user } = useAuth();
-  const { favorites, toggleFavorite } = useFavorites();
-  const mainNavigation = useNavigation();
+  const [selectedFurnitureId, setSelectedFurnitureId] = useState<string | null>(null);
+  
+  const { 
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+    refetchWithReset,
+    isRefetching,
+    error,
+  } = useFurniture();
+  
+  const { data: wishlistsData } = useWishlists();
 
-  const handleFavoritePress = async (productId: string) => {
+  // Flatten all pages of items into a single array
+  const allItems = data?.pages.flatMap(page => page.items) ?? [];
+
+  const isInWishlist = (furnitureId: string) => {
+    if (!user || !wishlistsData?.items) return false;
+    return wishlistsData.items.some(item => item.furniture_id === furnitureId);
+  };
+
+  const handleFavoritePress = (furnitureId: string) => {
     if (!user) {
-      mainNavigation.navigate('Profile' as never);
+      navigation.navigate('Profile' as never);
       return;
     }
-    await toggleFavorite(productId);
+    setSelectedFurnitureId(furnitureId);
   };
+
+  const renderFooter = () => {
+    if (!hasNextPage) return null;
+    return (
+      <View style={styles.footer}>
+        {isFetchingNextPage ? (
+          <ActivityIndicator size="large" color="#E85D3F" />
+        ) : (
+          <IconButton
+            icon="refresh"
+            size={24}
+            iconColor="#E85D3F"
+            onPress={() => fetchNextPage()}
+          />
+        )}
+      </View>
+    );
+  };
+
+  if (error) {
+    return (
+      <SafeAreaWrapper>
+        <View style={styles.centerContainer}>
+          <Text>Error loading products. Please try again.</Text>
+          <IconButton onPress={() => refetch()} icon="refresh" />
+        </View>
+      </SafeAreaWrapper>
+    );
+  }
 
   return (
     <SafeAreaWrapper>
@@ -74,33 +85,66 @@ export function ProductListScreen({ navigation, route }: Props) {
         <Appbar.Action icon="tune" onPress={() => {}} />
       </Appbar.Header>
       <SearchBar />
-      <FlatList
-        data={products}
-        numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ProductCard
-            title={item.title}
-            brand={item.brand}
-            price={item.price}
-            image={item.image}
-            isFavorite={user ? favorites.has(item.id) : false}
-            onPress={() => {}}
-            onFavoritePress={() => handleFavoritePress(item.id)}
-          />
-        )}
+      
+      {isLoading ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#E85D3F" />
+        </View>
+      ) : (
+        <FlatList
+          data={allItems}
+          numColumns={2}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={styles.columnWrapper}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <ProductCard
+              title={item.name || ''}
+              brand={item.brand || ''}
+              price={item.current_price || 0}
+              image={item.img_src_url || ''}
+              isFavorite={isInWishlist(item.id)}
+              onPress={() => {}}
+              onFavoritePress={() => handleFavoritePress(item.id)}
+            />
+          )}
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          refreshing={isRefetching}
+          onRefresh={() => refetchWithReset()}
+        />
+      )}
+
+      <AddToWishlistModal
+        visible={!!selectedFurnitureId}
+        onDismiss={() => setSelectedFurnitureId(null)}
+        furnitureId={selectedFurnitureId || ''}
       />
     </SafeAreaWrapper>
   );
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   listContent: {
     padding: 8,
+    flexGrow: 1,
   },
   columnWrapper: {
     justifyContent: 'space-between',
+    padding: 8,
+  },
+  footer: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });

@@ -1,78 +1,107 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Text, FAB } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { Text, Button } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { useAuth } from '@/providers/AuthProvider';
-import { useFavorites } from '@/hooks/useFavorites';
+import { useWishlists } from '@/hooks/api/useWishlists';
+import { CreateWishlistModal } from '@/components/wishlist/CreateWishlistModal';
 import { useNavigation } from '@react-navigation/native';
-import { CompositeNavigationProp } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { TabParamList, RootStackParamList } from '@/navigation/types';
-
-type WishListsScreenNavigationProp = CompositeNavigationProp<
-  BottomTabNavigationProp<TabParamList, 'WishLists'>,
-  NativeStackNavigationProp<RootStackParamList>
->;
 
 export function WishListsScreen() {
   const { user } = useAuth();
-  const { favorites, loadFavorites } = useFavorites();
-  const navigation = useNavigation<WishListsScreenNavigationProp>();
+  const navigation = useNavigation();
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const { data: wishlistsData, isLoading } = useWishlists();
 
-  useEffect(() => {
-    if (user) {
-      loadFavorites();
-    }
-  }, [loadFavorites, user]);
-
-  const handleCreateWishlist = () => {
-    if (!user) {
-      Alert.alert(
-        'Sign In Required',
-        'Please sign in to create and manage your wishlists',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Sign In',
-            onPress: () => navigation.navigate('Profile'),
-          },
-        ]
-      );
-      return;
-    }
-    // TODO: Implement wishlist creation
+  const handleCreateSuccess = (name: string) => {
+    setCreateModalVisible(false);
+    // The wishlist will be created when the first item is added
   };
+
+  const renderWishlistSection = (name: string, items: any[]) => {
+    const thumbnails = items
+      .slice(0, 4)
+      .map(item => item.furniture.img_src_url)
+      .filter(Boolean);
+
+    return (
+      <View key={name} style={styles.wishlistSection}>
+        <View style={styles.wishlistHeader}>
+          <View>
+            <Text variant="titleLarge">{name}</Text>
+            <Text variant="bodyMedium" style={styles.itemCount}>
+              ({items.length})
+            </Text>
+          </View>
+          <Button mode="text" textColor="#E85D3F">
+            View List
+          </Button>
+        </View>
+
+        <View style={styles.thumbnailGrid}>
+          {thumbnails.map((url, index) => (
+            <Image
+              key={index}
+              source={{ uri: url }}
+              style={styles.thumbnail}
+              resizeMode="cover"
+            />
+          ))}
+        </View>
+
+        <TouchableOpacity>
+          <Text style={styles.editLink}>Edit</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  if (!user) {
+    return (
+      <SafeAreaWrapper>
+        <View style={styles.container}>
+          <Text variant="headlineMedium" style={styles.title}>
+            Wishlists
+          </Text>
+          <Text style={styles.subtitle}>
+            Sign in to create and manage your wishlists
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('Profile' as never)}
+            style={styles.signInButton}
+          >
+            Sign In
+          </Button>
+        </View>
+      </SafeAreaWrapper>
+    );
+  }
 
   return (
     <SafeAreaWrapper>
       <View style={styles.container}>
         <Text variant="headlineMedium" style={styles.title}>
-          Wishlists
+          Wish Lists
         </Text>
-        
-        <Text style={styles.subtitle}>
-          {user ? (
-            favorites.size === 0
-              ? 'No items in your wishlist yet'
-              : `${favorites.size} items in your wishlist`
-          ) : (
-            'Sign in to create and manage your own wishlists'
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {Object.entries(wishlistsData?.groupedItems || {}).map(([name, items]) => 
+            renderWishlistSection(name, items)
           )}
-        </Text>
+        </ScrollView>
 
-        {/* TODO: Add public wishlist items grid/list here */}
-        {/* This section would show public wishlists that anyone can view */}
-        <Text style={styles.sectionTitle}>
-          Popular Wishlists
-        </Text>
-        {/* Add your public wishlist display components here */}
+        <TouchableOpacity 
+          style={styles.createButton}
+          onPress={() => setCreateModalVisible(true)}
+        >
+          <Text style={styles.createButtonText}>+ Create New Wish List</Text>
+        </TouchableOpacity>
 
-        <FAB
-          icon="plus"
-          label="Create Wishlist"
-          onPress={handleCreateWishlist}
-          style={styles.fab}
+        <CreateWishlistModal
+          visible={createModalVisible}
+          onDismiss={() => setCreateModalVisible(false)}
+          onCreateSuccess={handleCreateSuccess}
         />
       </View>
     </SafeAreaWrapper>
@@ -86,21 +115,47 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 8,
+    color: '#E85D3F',
   },
   subtitle: {
     marginBottom: 24,
     color: '#666',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 24,
-    marginBottom: 16,
+  wishlistSection: {
+    marginBottom: 32,
   },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
+  wishlistHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  itemCount: {
+    color: '#666',
+  },
+  thumbnailGrid: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  thumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 4,
+    backgroundColor: '#f0f0f0',
+  },
+  editLink: {
+    color: '#666',
+    fontSize: 14,
+  },
+  createButton: {
+    paddingVertical: 16,
+  },
+  createButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  signInButton: {
+    marginTop: 16,
   },
 });

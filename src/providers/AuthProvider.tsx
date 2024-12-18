@@ -194,6 +194,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         ],
       })
 
+      console.log('Apple credential:', credential)
+
       const { error } = await supabase.auth.signInWithIdToken({
         provider: 'apple',
         token: credential.identityToken!,
