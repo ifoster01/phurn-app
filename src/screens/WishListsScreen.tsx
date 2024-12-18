@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { Text, Button, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { Text, Button, ActivityIndicator, Snackbar } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { useAuth } from '@/providers/AuthProvider';
 import { useWishlists, useDeleteWishlist, Wishlist, WishlistItem } from '@/hooks/api/useWishlists';
@@ -84,18 +84,37 @@ export function WishListsScreen() {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const { data: wishlistData, isLoading, isError, refetch } = useWishlists();
   const deleteWishlist = useDeleteWishlist();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleCreateSuccess = () => {
     setCreateModalVisible(false);
   };
 
-  const handleDeleteWishlist = async (wishlistId: string) => {
-    try {
-      await deleteWishlist.mutateAsync(wishlistId);
-    } catch (error) {
-      console.error('Error deleting wishlist:', error);
-      // TODO: Show error message to user
-    }
+  const handleDeleteWishlist = async (wishlistId: string, wishlistName: string) => {
+    Alert.alert(
+      'Delete Wishlist',
+      `Are you sure you want to delete "${wishlistName}"? This action cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteWishlist.mutateAsync(wishlistId);
+              setSuccessMessage(`Successfully deleted "${wishlistName}"`);
+              setTimeout(() => setSuccessMessage(null), 2000);
+            } catch (error) {
+              console.error('Error deleting wishlist:', error);
+              // TODO: Show error message to user
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleNavigateToWishlist = (wishlistId: string) => {
@@ -171,7 +190,7 @@ export function WishListsScreen() {
             <WishlistSection
               key={wishlistId}
               wishlist={wishlist}
-              onDelete={handleDeleteWishlist}
+              onDelete={(id) => handleDeleteWishlist(id, wishlist.name)}
               isDeleting={deleteWishlist.isPending}
               onNavigate={handleNavigateToWishlist}
             />
@@ -190,6 +209,14 @@ export function WishListsScreen() {
           onDismiss={() => setCreateModalVisible(false)}
           onCreateSuccess={handleCreateSuccess}
         />
+
+        <Snackbar
+          visible={!!successMessage}
+          onDismiss={() => setSuccessMessage(null)}
+          duration={2000}
+        >
+          {successMessage}
+        </Snackbar>
       </View>
     </SafeAreaWrapper>
   );
@@ -256,10 +283,14 @@ const styles = StyleSheet.create({
   },
   createButton: {
     paddingVertical: 16,
+    backgroundColor: '#E85D3F',
+    borderRadius: 12,
   },
   createButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
   },
   signInButton: {
     marginTop: 16,
