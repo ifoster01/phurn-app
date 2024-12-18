@@ -6,6 +6,7 @@ import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
+import { useAuth } from '@/hooks/useAuth';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'ProductList'>;
 
@@ -24,14 +25,14 @@ const products: Product[] = [
     title: 'Lorraine Marble Coffee Table 36"',
     brand: 'West Elm',
     price: 899,
-    image: 'https://example.com/table1.jpg',
+    image: 'https://cb2.scene7.com/is/image/CB2/CevaLtBlueVelvetSofaSHF23/$web_plp_card$/240215085233/ceva-light-blue-performance-velvet-sofa.jpg',
   },
   {
     id: '2',
-    title: 'Scatola Rectangular Brown Burl Wood Coffee Table',
+    title: 'Nadine Shearling Accent Chair with Marble Legs by goop',
     brand: 'CB2',
-    price: 1299,
-    image: 'https://example.com/table2.jpg',
+    price: 1799,
+    image: 'https://cb2.scene7.com/is/image/CB2/NadineShrlgAcntChrWMbLgsSHF24/$web_plp_card$/241214084127/NadineShrlgAcntChrWMbLgsSHF24.jpg',
   },
   {
     id: '3',
@@ -52,17 +53,20 @@ const products: Product[] = [
 export function ProductListScreen({ navigation, route }: Props) {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const { category, subcategory } = route.params;
+  const { requireAuth } = useAuth();
 
   const toggleFavorite = (productId: string) => {
-    setFavorites((prev) => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(productId)) {
-        newFavorites.delete(productId);
-      } else {
-        newFavorites.add(productId);
-      }
-      return newFavorites;
-    });
+    requireAuth(() => {
+      setFavorites((prev) => {
+        const newFavorites = new Set(prev);
+        if (newFavorites.has(productId)) {
+          newFavorites.delete(productId);
+        } else {
+          newFavorites.add(productId);
+        }
+        return newFavorites;
+      });
+    }, 'Please sign in to save items to your wishlist');
   };
 
   return (

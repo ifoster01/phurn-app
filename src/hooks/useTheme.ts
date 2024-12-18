@@ -1,7 +1,7 @@
 import { useColorScheme } from 'react-native';
-import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+import { lightTheme, darkTheme } from '@/theme';
 
 export function useTheme() {
   const colorScheme = useColorScheme();
-  return colorScheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+  return colorScheme === 'dark' ? darkTheme : lightTheme;
 }

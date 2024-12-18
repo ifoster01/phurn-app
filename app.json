@@ -1,0 +1,79 @@
+{
+  "expo": {
+    "name": "Phurn",
+    "slug": "phurn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logos/phurn-app-icon.png",
+    "scheme": "phurn",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/logos/phurn-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "usesAppleSignIn": true,
+      "supportsTablet": true,
+      "bundleIdentifier": "store.phurn.ios",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.748598262140-84h9e74afg831bfaoohkv32tdft8dafm"
+            ]
+          }
+        ]
+      },
+      "minimumOSVersion": "12.0",
+      "associatedDomains": [
+        "applinks:onqvatlltilvtpylpudo.supabase.co"
+      ]
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/logos/phurn-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "store.phurn.android",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "phurn",
+              "host": "*"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./src/assets/logos/phurn-icon.png"
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin"
+      ],
+      "expo-secure-store",
+      "expo-font",
+      "expo-apple-authentication"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d6d80aa7-8ec5-447f-bd24-ee76bba64119"
+      }
+    },
+    "owner": "isaacfosterdev",
+    "entryPoint": "./index.ts"
+  }
+}

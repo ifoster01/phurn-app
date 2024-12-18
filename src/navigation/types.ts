@@ -3,16 +3,13 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
 
 export type RootStackParamList = {
-  Splash: undefined;
-  Login: undefined;
-  ForgotPassword: undefined;
-  Signup: undefined;
-  Tabs: undefined;
+  Tabs: { screen?: keyof TabParamList; params?: any };
   WishListDetail: { id: string };
+  Signup: undefined;
 };
 
 export type TabParamList = {
-  HomeTab: undefined;
+  Home: undefined;
   WishLists: undefined;
   Profile: undefined;
 };
@@ -36,3 +33,19 @@ export type TabNavigationProps<T extends keyof TabParamList> = {
   >;
   route: RouteProp<TabParamList, T>;
 };
+
+// Type for the auth store state
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  loading: boolean;
+}
+
+// Type for the user
+export interface User {
+  id: string;
+  email: string;
+  phoneNumber?: string;
+  fullName?: string;
+  createdAt: string;
+}

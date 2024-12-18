@@ -1,35 +1,31 @@
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import 'react-native-url-polyfill/auto';
+import { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { Provider as PaperProvider } from 'react-native-paper';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppNavigator } from '@/navigation/AppNavigator';
+import { Provider as PaperProvider } from 'react-native-paper';
 import { useTheme } from '@/hooks/useTheme';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-
-// Initialize React Query client with default options
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    },
-  },
-});
+import { StatusBar } from 'expo-status-bar';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { env } from '@/config/env';
+import { AuthProvider } from '@/providers/AuthProvider';
 
 export default function App() {
-  const theme = useTheme();
+  const theme = useTheme()
+  useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId: env.google.iosClientId,
+      webClientId: env.google.webClientId,
+    });
+  }, []);
 
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
-          <PaperProvider theme={theme}>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-          </PaperProvider>
-        </SafeAreaProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <PaperProvider theme={theme}>
+      <AuthProvider>
+        <NavigationContainer>
+          <AppNavigator />
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </AuthProvider>
+    </PaperProvider>
   );
 }

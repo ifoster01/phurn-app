@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Button, TextInput, Text } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
+import { useAuth } from '@/providers/AuthProvider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
+import { AuthError } from '@supabase/supabase-js';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 export function SignupScreen({ navigation }: Props) {
+  const { signUp } = useAuth();
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,15 +19,17 @@ export function SignupScreen({ navigation }: Props) {
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
-      // TODO: Show error message
+      Alert.alert('Error', 'Passwords do not match');
       return;
     }
 
     try {
       setLoading(true);
-      // TODO: Implement signup logic
+      await signUp(email, password);
+      navigation.replace('Tabs');
     } catch (error) {
-      console.error('Signup error:', error);
+      const authError = error as AuthError;
+      Alert.alert('Error', authError.message);
     } finally {
       setLoading(false);
     }
@@ -36,26 +42,40 @@ export function SignupScreen({ navigation }: Props) {
           Create Account
         </Text>
         <TextInput
+          label="Full Name"
+          value={fullName}
+          onChangeText={setFullName}
+          mode="outlined"
+          style={styles.input}
+          autoCapitalize="words"
+        />
+        <TextInput
           label="Email"
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
+          mode="outlined"
           style={styles.input}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
         />
         <TextInput
           label="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          mode="outlined"
           style={styles.input}
+          secureTextEntry
+          autoComplete="password-new"
         />
         <TextInput
           label="Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          secureTextEntry
+          mode="outlined"
           style={styles.input}
+          secureTextEntry
+          autoComplete="password-new"
         />
         <Button
           mode="contained"
@@ -67,7 +87,7 @@ export function SignupScreen({ navigation }: Props) {
         </Button>
         <Button
           mode="text"
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.goBack()}
           style={styles.button}
         >
           Already have an account? Login
