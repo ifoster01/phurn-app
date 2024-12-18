@@ -1,18 +1,36 @@
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
-
-export type RootStackParamList = {
-  Tabs: { screen?: keyof TabParamList; params?: any };
-  WishListDetail: { id: string };
-  Signup: undefined;
-};
+import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { CompositeNavigationProp, RouteProp, CompositeScreenProps } from '@react-navigation/native';
 
 export type TabParamList = {
   Home: undefined;
-  WishLists: undefined;
   Profile: undefined;
+  Wishlists: undefined;
+  Settings: undefined;
 };
+
+export type RootStackParamList = {
+  Tabs: {
+    screen?: keyof TabParamList;
+  };
+  WishListDetail: {
+    wishlistId: string;
+  };
+  ProductList: {
+    category: string;
+    subcategory?: string;
+  };
+  Signup: undefined;
+};
+
+export type RootStackScreenProps<T extends keyof RootStackParamList> = 
+  NativeStackScreenProps<RootStackParamList, T>;
+
+export type TabScreenProps<T extends keyof TabParamList> = 
+  CompositeScreenProps<
+    BottomTabScreenProps<TabParamList, T>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >;
 
 export type HomeStackParamList = {
   HomeScreen: undefined;

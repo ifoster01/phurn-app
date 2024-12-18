@@ -73,29 +73,36 @@ export type Database = {
         }
         Relationships: []
       }
-      wishlist: {
+      user_wishlist: {
         Row: {
           created_at: string
           furniture_id: string
           id: string
           user_id: string | null
-          wishlist_name: string | null
+          wishlist_id: string | null
         }
         Insert: {
           created_at?: string
           furniture_id?: string
           id: string
           user_id?: string | null
-          wishlist_name?: string | null
+          wishlist_id?: string | null
         }
         Update: {
           created_at?: string
           furniture_id?: string
           id?: string
           user_id?: string | null
-          wishlist_name?: string | null
+          wishlist_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "user_wishlist_wishlist_id_fkey"
+            columns: ["wishlist_id"]
+            isOneToOne: false
+            referencedRelation: "wishlists"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "wishlist_furniture_id_fkey"
             columns: ["furniture_id"]
@@ -104,6 +111,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

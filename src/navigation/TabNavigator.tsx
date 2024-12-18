@@ -7,23 +7,27 @@ import { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-type IconName = keyof typeof Ionicons.glyphMap;
+const getTabIcon = (routeName: keyof TabParamList, focused: boolean): keyof typeof Ionicons.glyphMap => {
+  switch (routeName) {
+    case 'Home':
+      return focused ? 'home' : 'home-outline';
+    case 'Wishlists':
+      return focused ? 'heart' : 'heart-outline';
+    case 'Profile':
+      return focused ? 'person' : 'person-outline';
+    case 'Settings':
+      return focused ? 'settings' : 'settings-outline';
+    default:
+      return 'help-outline';
+  }
+};
 
 export function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: IconName = 'home';
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'WishLists') {
-            iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
+          const iconName = getTabIcon(route.name, focused);
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#E85D3F',
@@ -41,7 +45,7 @@ export function TabNavigator() {
         options={{ title: '' }}
       />
       <Tab.Screen 
-        name="WishLists" 
+        name="Wishlists" 
         component={WishListsScreen} 
         options={{ title: '' }}
       />

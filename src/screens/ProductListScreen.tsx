@@ -5,13 +5,23 @@ import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '@/navigation/types';
+import { HomeStackParamList, RootStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFurniture } from '@/hooks/api/useFurniture';
-import { useWishlists } from '@/hooks/api/useWishlists';
+import { useWishlists, WishlistItem } from '@/hooks/api/useWishlists';
 import { AddToWishlistModal } from '@/components/wishlist/AddToWishlistModal';
+import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-type Props = NativeStackScreenProps<HomeStackParamList, 'ProductList'>;
+type NavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList, 'ProductList'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
+
+type Props = {
+  navigation: NavigationProp;
+  route: NativeStackScreenProps<HomeStackParamList, 'ProductList'>['route'];
+};
 
 export function ProductListScreen({ navigation, route }: Props) {
   const { category, subcategory } = route.params;
@@ -30,19 +40,23 @@ export function ProductListScreen({ navigation, route }: Props) {
     error,
   } = useFurniture();
   
-  const { data: wishlistsData } = useWishlists();
+  const { data: wishlistData } = useWishlists();
 
   // Flatten all pages of items into a single array
   const allItems = data?.pages.flatMap(page => page.items) ?? [];
 
-  const isInWishlist = (furnitureId: string) => {
-    if (!user || !wishlistsData?.items) return false;
-    return wishlistsData.items.some(item => item.furniture_id === furnitureId);
+  const isInWishlist = (furnitureId: string): boolean => {
+    if (!user || !wishlistData?.groupedItems) return false;
+    
+    // Check if the furniture exists in any wishlist
+    return Object.values(wishlistData.groupedItems).some(wishlist => 
+      wishlist.items.some((item: WishlistItem) => item.furniture_id === furnitureId)
+    );
   };
 
   const handleFavoritePress = (furnitureId: string) => {
     if (!user) {
-      navigation.navigate('Profile' as never);
+      navigation.navigate('Tabs', { screen: 'Profile' });
       return;
     }
     setSelectedFurnitureId(furnitureId);

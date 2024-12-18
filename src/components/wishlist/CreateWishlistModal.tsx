@@ -1,37 +1,48 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Modal, Portal, Text, Button, TextInput, useTheme } from 'react-native-paper';
+import { Modal, Portal, Text, Button, TextInput, useTheme, HelperText } from 'react-native-paper';
 import { useCreateWishlist } from '@/hooks/api/useWishlists';
 
 interface Props {
   visible: boolean;
   onDismiss: () => void;
-  onCreateSuccess: (name: string) => void;
+  onCreateSuccess: () => void;
 }
 
 export function CreateWishlistModal({ visible, onDismiss, onCreateSuccess }: Props) {
   const theme = useTheme();
   const [name, setName] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const createWishlist = useCreateWishlist();
 
   const handleCreate = async () => {
     if (!name.trim()) return;
+    setError(null);
 
     try {
       await createWishlist.mutateAsync({ name: name.trim() });
-      onCreateSuccess(name.trim());
       setName('');
-    } catch (error) {
-      console.error('Error creating wishlist:', error);
-      // TODO: Show error message to user
+      onCreateSuccess();
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     }
+  };
+
+  const handleDismiss = () => {
+    setName('');
+    setError(null);
+    onDismiss();
   };
 
   return (
     <Portal>
       <Modal
         visible={visible}
-        onDismiss={onDismiss}
+        onDismiss={handleDismiss}
         contentContainerStyle={[
           styles.modalContainer,
           { backgroundColor: theme.colors.background }
@@ -44,25 +55,36 @@ export function CreateWishlistModal({ visible, onDismiss, onCreateSuccess }: Pro
         <TextInput
           label="Wishlist Name"
           value={name}
-          onChangeText={setName}
+          onChangeText={(text) => {
+            setName(text);
+            setError(null);
+          }}
           mode="outlined"
           style={styles.input}
           autoFocus
+          error={!!error}
         />
+        
+        {error && (
+          <HelperText type="error" visible={!!error}>
+            {error}
+          </HelperText>
+        )}
 
         <View style={styles.buttonContainer}>
           <Button
             mode="contained"
             onPress={handleCreate}
             loading={createWishlist.isPending}
-            disabled={!name.trim()}
+            disabled={!name.trim() || createWishlist.isPending}
             style={styles.button}
           >
             Create
           </Button>
           <Button
             mode="text"
-            onPress={onDismiss}
+            onPress={handleDismiss}
+            disabled={createWishlist.isPending}
             style={styles.button}
           >
             Cancel
@@ -84,10 +106,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    marginBottom: 20,
+    marginBottom: 4,
   },
   buttonContainer: {
     gap: 8,
+    marginTop: 16,
   },
   button: {
     marginVertical: 4,

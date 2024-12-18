@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Modal, Portal, Text, Button, List, useTheme } from 'react-native-paper';
-import { useWishlists, useAddToWishlist } from '@/hooks/api/useWishlists';
+import { Modal, Portal, Text, Button, List, useTheme, Divider } from 'react-native-paper';
+import { useWishlists, useAddToWishlist, Wishlist } from '@/hooks/api/useWishlists';
 import { CreateWishlistModal } from '@/components/wishlist/CreateWishlistModal';
 
 interface Props {
@@ -13,22 +13,33 @@ interface Props {
 export function AddToWishlistModal({ visible, onDismiss, furnitureId }: Props) {
   const theme = useTheme();
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const { data: wishlistsData } = useWishlists();
+  const [error, setError] = useState<string | null>(null);
+  const { data: wishlistData } = useWishlists();
   const addToWishlist = useAddToWishlist();
 
-  const handleAddToWishlist = async (wishlistName?: string) => {
+  const handleAddToWishlist = async (wishlistId: string) => {
     try {
+      setError(null);
       await addToWishlist.mutateAsync({
+        wishlistId,
         furnitureId,
-        wishlistName,
       });
       onDismiss();
-    } catch (error) {
-      console.error('Error adding to wishlist:', error);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     }
   };
 
-  const existingWishlistNames = Object.keys(wishlistsData?.groupedItems || {});
+  const handleCreateSuccess = () => {
+    setCreateModalVisible(false);
+  };
+
+  const wishlists = wishlistData?.wishlists || [];
+  const hasWishlists = wishlists.length > 0;
 
   return (
     <>
@@ -41,44 +52,52 @@ export function AddToWishlistModal({ visible, onDismiss, furnitureId }: Props) {
             { backgroundColor: theme.colors.background }
           ]}
         >
-          <Text variant="titleLarge" style={styles.title}>
-            Add to Wishlist
-          </Text>
+          <View style={styles.content}>
+            <Text variant="titleLarge" style={styles.title}>
+              Add to Wishlist
+            </Text>
 
-          <ScrollView style={styles.scrollView}>
-            <List.Item
-              title="My Wishlist"
-              left={props => <List.Icon {...props} icon="heart" />}
-              onPress={() => handleAddToWishlist()}
-            />
-            
-            {existingWishlistNames.map((name) => (
-              name !== 'My Wishlist' && (
-                <List.Item
-                  key={name}
-                  title={name}
-                  left={props => <List.Icon {...props} icon="heart" />}
-                  onPress={() => handleAddToWishlist(name)}
-                />
-              )
-            ))}
-          </ScrollView>
+            {error && (
+              <Text style={styles.errorText}>{error}</Text>
+            )}
 
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="outlined"
-              onPress={() => setCreateModalVisible(true)}
-              style={styles.button}
-            >
-              Create New Wishlist
-            </Button>
-            <Button
-              mode="text"
-              onPress={onDismiss}
-              style={styles.button}
-            >
-              Cancel
-            </Button>
+            {hasWishlists ? (
+              <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                {wishlists.map((wishlist: Wishlist, index) => (
+                  <React.Fragment key={wishlist.id}>
+                    <List.Item
+                      title={wishlist.name}
+                      left={props => <List.Icon {...props} icon="heart-outline" color={theme.colors.primary} />}
+                      onPress={() => handleAddToWishlist(wishlist.id)}
+                      disabled={addToWishlist.isPending}
+                      style={styles.listItem}
+                    />
+                    {index < wishlists.length - 1 && <Divider />}
+                  </React.Fragment>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.emptyText}>No wishlists yet. Create your first one!</Text>
+            )}
+
+            <View style={styles.buttonContainer}>
+              <Button
+                mode="contained"
+                onPress={() => setCreateModalVisible(true)}
+                style={styles.createButton}
+                disabled={addToWishlist.isPending}
+              >
+                Create New Wishlist
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={onDismiss}
+                style={styles.cancelButton}
+                disabled={addToWishlist.isPending}
+              >
+                Cancel
+              </Button>
+            </View>
           </View>
         </Modal>
       </Portal>
@@ -86,10 +105,7 @@ export function AddToWishlistModal({ visible, onDismiss, furnitureId }: Props) {
       <CreateWishlistModal
         visible={createModalVisible}
         onDismiss={() => setCreateModalVisible(false)}
-        onCreateSuccess={(name) => {
-          setCreateModalVisible(false);
-          handleAddToWishlist(name);
-        }}
+        onCreateSuccess={handleCreateSuccess}
       />
     </>
   );
@@ -98,22 +114,41 @@ export function AddToWishlistModal({ visible, onDismiss, furnitureId }: Props) {
 const styles = StyleSheet.create({
   modalContainer: {
     margin: 20,
-    borderRadius: 8,
-    padding: 20,
-    maxHeight: '80%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  content: {
+    padding: 16,
   },
   title: {
-    marginBottom: 20,
+    marginBottom: 16,
     textAlign: 'center',
+    fontWeight: '600',
   },
   scrollView: {
     maxHeight: 300,
+    marginBottom: 16,
+  },
+  listItem: {
+    paddingVertical: 8,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginVertical: 24,
+    opacity: 0.7,
+  },
+  errorText: {
+    color: '#B00020',
+    textAlign: 'center',
+    marginBottom: 16,
   },
   buttonContainer: {
-    marginTop: 20,
     gap: 8,
   },
-  button: {
-    marginVertical: 4,
+  createButton: {
+    marginBottom: 8,
+  },
+  cancelButton: {
+    marginBottom: 0,
   },
 }); 
