@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, FAB } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/providers/AuthProvider';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useNavigation } from '@react-navigation/native';
 import { CompositeNavigationProp } from '@react-navigation/native';
@@ -16,59 +16,57 @@ type WishListsScreenNavigationProp = CompositeNavigationProp<
 >;
 
 export function WishListsScreen() {
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { favorites, loadFavorites } = useFavorites();
   const navigation = useNavigation<WishListsScreenNavigationProp>();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       loadFavorites();
     }
-  }, [loadFavorites, isAuthenticated]);
+  }, [loadFavorites, user]);
 
   const handleCreateWishlist = () => {
-    if (!isAuthenticated) {
+    if (!user) {
       Alert.alert(
         'Sign In Required',
-        'Please sign in to create and manage wishlists',
+        'Please sign in to create and manage your wishlists',
         [
           { text: 'Cancel', style: 'cancel' },
           {
             text: 'Sign In',
-            onPress: () => {
-              navigation.navigate('Tabs', {
-                screen: 'Profile'
-              });
-            },
+            onPress: () => navigation.navigate('Profile'),
           },
         ]
       );
       return;
     }
-    // Handle creating wishlist
+    // TODO: Implement wishlist creation
   };
 
   return (
     <SafeAreaWrapper>
       <View style={styles.container}>
         <Text variant="headlineMedium" style={styles.title}>
-          My Wishlists
+          Wishlists
         </Text>
         
-        {isAuthenticated ? (
-          <>
-            <Text style={styles.subtitle}>
-              {favorites.size === 0
-                ? 'No items in your wishlist yet'
-                : `${favorites.size} items in your wishlist`}
-            </Text>
-            {/* TODO: Add wishlist items grid/list here */}
-          </>
-        ) : (
-          <Text style={styles.subtitle}>
-            Create wishlists to save your favorite items for later
-          </Text>
-        )}
+        <Text style={styles.subtitle}>
+          {user ? (
+            favorites.size === 0
+              ? 'No items in your wishlist yet'
+              : `${favorites.size} items in your wishlist`
+          ) : (
+            'Sign in to create and manage your own wishlists'
+          )}
+        </Text>
+
+        {/* TODO: Add public wishlist items grid/list here */}
+        {/* This section would show public wishlists that anyone can view */}
+        <Text style={styles.sectionTitle}>
+          Popular Wishlists
+        </Text>
+        {/* Add your public wishlist display components here */}
 
         <FAB
           icon="plus"
@@ -92,6 +90,12 @@ const styles = StyleSheet.create({
   subtitle: {
     marginBottom: 24,
     color: '#666',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 24,
+    marginBottom: 16,
   },
   fab: {
     position: 'absolute',

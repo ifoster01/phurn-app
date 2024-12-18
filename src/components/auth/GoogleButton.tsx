@@ -8,20 +8,15 @@ import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/providers/AuthProvider'
 
 export const GoogleButton = () => {
-    const theme = useTheme()
-    const { user, signOut, signInWithGoogle, signInWithApple, signIn, signUp } = useAuth()
-    const [loading, setLoading] = useState(false)
+    const { signInWithGoogle } = useAuth()
     const [error, setError] = useState<string | null>(null)
 
     const handleGooglePress = async () => {
         try {
           setError(null)
-          setLoading(true)
           await signInWithGoogle()
         } catch (err) {
           console.error('Google sign in error:', err)
-        } finally {
-          setLoading(false)
         }
     }
 
@@ -31,7 +26,6 @@ export const GoogleButton = () => {
         onPress={handleGooglePress}
         icon="google"
         style={styles.button}
-        contentStyle={styles.content}
         >
             Continue with Google
         </Button>
@@ -42,8 +36,5 @@ const styles = StyleSheet.create({
   button: {
     borderColor: lightTheme.colors.primary,
     borderWidth: 1,
-  },
-  content: {
-    paddingVertical: 8,
   },
 }) 

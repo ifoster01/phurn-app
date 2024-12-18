@@ -24,26 +24,26 @@ export function AppNavigator() {
         }}
       />
       
-      <Stack.Screen 
-        name="Signup" 
-        component={SignupScreen}
-        options={{
-          headerShown: false,
-          presentation: 'modal',
-        }}
-      />
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+        <Stack.Screen 
+          name="Signup" 
+          component={SignupScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack.Group>
       
-      {user && (
+      <Stack.Group screenOptions={{ headerShown: true }}>
         <Stack.Screen 
           name="WishListDetail" 
           component={WishListsScreen}
           options={{
-            headerShown: true,
             title: 'Wish List',
             presentation: 'card',
           }}
         />
-      )}
+      </Stack.Group>
     </Stack.Navigator>
   );
 }

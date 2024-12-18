@@ -9,7 +9,6 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TabParamList, RootStackParamList } from '@/navigation/types';
 import { AuthError } from '@supabase/supabase-js';
-import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GoogleButton } from '@/components/auth/GoogleButton';
 import { AppleButton } from '@/components/auth/AppleButton';
@@ -20,11 +19,12 @@ type ProfileScreenNavigationProp = CompositeNavigationProp<
 >;
 
 export function ProfileScreen() {
-  const { user, signIn, signOut, signInWithGoogle, signInWithApple } = useAuth();
+  const { user, signIn, signOut, deleteAccount } = useAuth();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailLogin = async () => {
     try {
@@ -53,29 +53,6 @@ export function ProfileScreen() {
       const authError = error as AuthError;
       Alert.alert('Error', authError.message);
     }
-  };
-
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // TODO: Implement delete account
-              await signOut();
-            } catch (error) {
-              const authError = error as AuthError;
-              Alert.alert('Error', authError.message);
-            }
-          },
-        },
-      ]
-    );
   };
 
   if (!user) {
@@ -119,8 +96,14 @@ export function ProfileScreen() {
             onChangeText={setPassword}
             mode="outlined"
             style={styles.input}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             autoComplete="password"
+            right={
+              <TextInput.Icon
+                icon={showPassword ? "eye-off" : "eye"}
+                onPress={() => setShowPassword(!showPassword)}
+              />
+            }
           />
 
           <Button
@@ -185,7 +168,7 @@ export function ProfileScreen() {
 
           <Button
             mode="outlined"
-            onPress={handleDeleteAccount}
+            onPress={deleteAccount}
             style={styles.deleteButton}
             textColor="#FF3B30"
           >

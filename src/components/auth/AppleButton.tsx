@@ -6,19 +6,15 @@ import { useTheme } from 'react-native-paper'
 
 export const AppleButton = () => {
     const theme = useTheme()
-    const { user, signOut, signInWithGoogle, signInWithApple, signIn, signUp } = useAuth()
-    const [loading, setLoading] = useState(false)
+    const { signInWithApple } = useAuth()
     const [error, setError] = useState<string | null>(null)
 
     const handleApplePress = async () => {
         try {
             setError(null)
-            setLoading(true)
             await signInWithApple()
         } catch (err) {
             console.error('Apple sign in error:', err)
-        } finally {
-            setLoading(false)
         }
     }
   
@@ -28,7 +24,6 @@ export const AppleButton = () => {
             onPress={handleApplePress}
             icon="apple"
             style={styles.button}
-            contentStyle={styles.content}
             textColor={theme.dark ? 'white' : 'black'}
         >
             Continue with Apple
@@ -40,8 +35,5 @@ const styles = StyleSheet.create({
   button: {
     borderColor: '#000000',
     borderWidth: 1,
-  },
-  content: {
-    paddingVertical: 8,
   },
 }) 

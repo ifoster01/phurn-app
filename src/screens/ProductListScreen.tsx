@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
@@ -6,7 +6,9 @@ import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/providers/AuthProvider';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useNavigation } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'ProductList'>;
 
@@ -51,22 +53,17 @@ const products: Product[] = [
 ];
 
 export function ProductListScreen({ navigation, route }: Props) {
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const { category, subcategory } = route.params;
-  const { requireAuth } = useAuth();
+  const { user } = useAuth();
+  const { favorites, toggleFavorite } = useFavorites();
+  const mainNavigation = useNavigation();
 
-  const toggleFavorite = (productId: string) => {
-    requireAuth(() => {
-      setFavorites((prev) => {
-        const newFavorites = new Set(prev);
-        if (newFavorites.has(productId)) {
-          newFavorites.delete(productId);
-        } else {
-          newFavorites.add(productId);
-        }
-        return newFavorites;
-      });
-    }, 'Please sign in to save items to your wishlist');
+  const handleFavoritePress = async (productId: string) => {
+    if (!user) {
+      mainNavigation.navigate('Profile' as never);
+      return;
+    }
+    await toggleFavorite(productId);
   };
 
   return (
@@ -89,9 +86,9 @@ export function ProductListScreen({ navigation, route }: Props) {
             brand={item.brand}
             price={item.price}
             image={item.image}
-            isFavorite={favorites.has(item.id)}
+            isFavorite={user ? favorites.has(item.id) : false}
             onPress={() => {}}
-            onFavoritePress={() => toggleFavorite(item.id)}
+            onFavoritePress={() => handleFavoritePress(item.id)}
           />
         )}
       />
@@ -101,7 +98,7 @@ export function ProductListScreen({ navigation, route }: Props) {
 
 const styles = StyleSheet.create({
   listContent: {
-    padding: 16,
+    padding: 8,
   },
   columnWrapper: {
     justifyContent: 'space-between',

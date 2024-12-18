@@ -16,7 +16,7 @@ export function TabNavigator() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: IconName = 'home';
 
-          if (route.name === 'HomeTab') {
+          if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'WishLists') {
             iconName = focused ? 'heart' : 'heart-outline';
@@ -36,7 +36,7 @@ export function TabNavigator() {
       })}
     >
       <Tab.Screen 
-        name="HomeTab" 
+        name="Home" 
         component={HomeNavigator} 
         options={{ title: '' }}
       />

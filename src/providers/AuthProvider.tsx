@@ -5,7 +5,7 @@ import { AuthContextType, AuthState, User } from '../types/auth'
 import * as WebBrowser from 'expo-web-browser'
 import * as Google from 'expo-auth-session/providers/google'
 import * as AppleAuthentication from 'expo-apple-authentication'
-import { Platform, Linking } from 'react-native'
+import { Platform, Linking, Alert } from 'react-native'
 import Constants from 'expo-constants'
 import { env } from '../config/env'
 
@@ -30,6 +30,10 @@ const mapSupabaseUser = (user: SupabaseUser | null): User | null => {
     createdAt: user.created_at!,
   };
 };
+
+interface SignUpMetadata {
+  fullName: string;
+}
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<AuthState>(initialState)
@@ -132,12 +136,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, metadata: SignUpMetadata | undefined) => {
     setState(prev => ({ ...prev, loading: true }))
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: metadata?.fullName,
+          },
+        },
       })
       if (error) throw error
     } finally {
@@ -258,6 +267,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const deleteAccount = async () => {
+    Alert.alert(
+        'Delete Account',
+        'Are you sure you want to delete your account? This action cannot be undone.',
+        [
+        {
+            text: 'Cancel',
+            style: 'cancel',
+        },
+        {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+            try {
+                // Simply delete the user's auth account
+                const { error } = await supabase.rpc('delete_user')
+                
+                if (error) throw error
+                // Sign out the user after successful deletion
+                await signOut()
+                
+                Alert.alert(
+                'Account Deleted',
+                'Your account has been successfully deleted.',
+                [{ text: 'OK' }]
+                )
+            } catch (error) {
+                console.error('Error deleting account:', error)
+                Alert.alert(
+                'Error',
+                'Failed to delete account. Please try again or contact support.'
+                )
+            }
+            },
+        },
+        ],
+        { cancelable: true }
+    )
+  }
+
   const value: AuthContextType = {
     ...state,
     signIn,
@@ -266,6 +315,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signInWithGoogle,
     signInWithApple,
     resetPassword,
+    deleteAccount,
   }
 
   React.useEffect(() => {
