@@ -27,7 +27,7 @@ export function AddToWishlistDrawer({ visible, onDismiss, furnitureId }: Props) 
   const bottomSheetRef = React.useRef<BottomSheet>(null);
 
   // Variables
-  const snapPoints = useMemo(() => ['70%'], []);
+  const snapPoints = useMemo(() => ['50%'], []);
 
   // Callbacks
   const handleSheetChanges = useCallback((index: number) => {

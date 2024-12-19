@@ -38,7 +38,7 @@ export function ProductCard({
       </View>
       <View style={styles.details}>
         <Text style={styles.brand}>{brand}</Text>
-        <Text style={styles.title} numberOfLines={2}>{title}</Text>
+        <Text style={styles.title} numberOfLines={2}>{title.replace('\\', '"')}</Text>
         <Text style={styles.price}>${price}</Text>
       </View>
     </TouchableOpacity>
