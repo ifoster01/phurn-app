@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigator } from './TabNavigator';
 import { WishListsScreen } from '@/screens/WishListsScreen';
 import { SignupScreen } from '@/screens/auth/SignupScreen';
+import { WishListDetailScreen } from '@/screens/WishListDetailScreen';
 import { RootStackParamList } from './types';
 import { useAuth } from '@/providers/AuthProvider';
 
@@ -37,8 +38,9 @@ export function AppNavigator() {
       <Stack.Group screenOptions={{ headerShown: true }}>
         <Stack.Screen 
           name="WishListDetail" 
-          component={WishListsScreen}
+          component={WishListDetailScreen}
           options={{
+            headerShown: false,
             title: 'Wish List',
             presentation: 'card',
           }}

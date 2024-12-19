@@ -4,32 +4,37 @@ import { HomeNavigator } from './HomeNavigator';
 import { WishListsScreen } from '@/screens/WishListsScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
 import { TabParamList } from './types';
+import PhurnOffColor from '@/assets/logos/phurn-off-color.svg';
+import PhurnOutlineOffColor from '@/assets/logos/phurn-outline-off-color.svg';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const getTabIcon = (routeName: keyof TabParamList, focused: boolean): keyof typeof Ionicons.glyphMap => {
-  switch (routeName) {
-    case 'Home':
-      return focused ? 'home' : 'home-outline';
-    case 'Wishlists':
-      return focused ? 'heart' : 'heart-outline';
-    case 'Profile':
-      return focused ? 'person' : 'person-outline';
-    case 'Settings':
-      return focused ? 'settings' : 'settings-outline';
-    default:
-      return 'help-outline';
+const getTabIcon = (routeName: keyof TabParamList, focused: boolean) => {
+  if (routeName === 'Home') {
+    const Icon = focused ? PhurnOffColor : PhurnOutlineOffColor;
+    return <Icon width={24} height={24} />;
   }
+
+  // For other tabs, use Ionicons
+  let iconName: keyof typeof Ionicons.glyphMap;
+  switch (routeName) {
+    case 'Wishlists':
+      iconName = focused ? 'heart' : 'heart-outline';
+      break;
+    case 'Profile':
+      iconName = focused ? 'person' : 'person-outline';
+      break;
+    default:
+      iconName = 'help-outline';
+  }
+  return <Ionicons name={iconName} size={24} color="#E85D3F" />;
 };
 
 export function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          const iconName = getTabIcon(route.name, focused);
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
+        tabBarIcon: ({ focused }) => getTabIcon(route.name, focused),
         tabBarActiveTintColor: '#E85D3F',
         tabBarInactiveTintColor: '#E85D3F',
         headerShown: false,
