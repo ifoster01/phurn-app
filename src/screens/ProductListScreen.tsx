@@ -9,7 +9,7 @@ import { HomeStackParamList, RootStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFurniture } from '@/hooks/api/useFurniture';
 import { useWishlists, WishlistItem } from '@/hooks/api/useWishlists';
-import { AddToWishlistModal } from '@/components/wishlist/AddToWishlistModal';
+import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -134,7 +134,7 @@ export function ProductListScreen({ navigation, route }: Props) {
         />
       )}
 
-      <AddToWishlistModal
+      <AddToWishlistDrawer
         visible={!!selectedFurnitureId}
         onDismiss={() => setSelectedFurnitureId(null)}
         furnitureId={selectedFurnitureId || ''}

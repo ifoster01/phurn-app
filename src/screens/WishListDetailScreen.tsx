@@ -7,7 +7,7 @@ import { useWishlists } from '@/hooks/api/useWishlists';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
-import { AddToWishlistModal } from '@/components/wishlist/AddToWishlistModal';
+import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'WishListDetail'>;
 
@@ -87,7 +87,7 @@ export function WishListDetailScreen({ navigation, route }: Props) {
         )}
       />
 
-      <AddToWishlistModal
+      <AddToWishlistDrawer
         visible={!!selectedFurnitureId}
         onDismiss={() => setSelectedFurnitureId(null)}
         furnitureId={selectedFurnitureId || ''}

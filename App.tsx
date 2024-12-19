@@ -9,6 +9,8 @@ import { StatusBar } from 'expo-status-bar';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { env } from '@/config/env';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
 
 const queryClient = new QueryClient()
 
@@ -22,15 +24,23 @@ export default function App() {
   }, []);
 
   return (
-    <PaperProvider theme={theme}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <NavigationContainer>
-            <AppNavigator />
-            <StatusBar style="auto" />
-          </NavigationContainer>
-        </AuthProvider>
-      </QueryClientProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <PaperProvider theme={theme}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <NavigationContainer>
+              <AppNavigator />
+              <StatusBar style="auto" />
+            </NavigationContainer>
+          </AuthProvider>
+        </QueryClientProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
