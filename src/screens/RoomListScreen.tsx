@@ -6,6 +6,8 @@ import { CategoryCard } from '@/components/home/CategoryCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
 import { Appbar } from 'react-native-paper';
+import { useProductFilter } from '@/providers/ProductFilterProvider';
+import { RoomType } from '@/stores/useProductFilterStore';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'RoomList'>;
 
@@ -39,6 +41,17 @@ const roomCategories: Category[] = [
 ];
 
 export function RoomListScreen({ navigation }: Props) {
+  const { setSubcategory, setRoomType } = useProductFilter();
+
+  const handleRoomPress = (roomId: string) => {
+    setRoomType(roomId as RoomType);
+    setSubcategory(roomId);
+    navigation.navigate('CategoryList', {
+      category: 'room',
+      subcategory: roomId
+    });
+  };
+
   return (
     <SafeAreaWrapper>
       <Appbar.Header>
@@ -52,12 +65,7 @@ export function RoomListScreen({ navigation }: Props) {
             key={category.id}
             title={category.title}
             image={category.image}
-            onPress={() => 
-              navigation.navigate('CategoryList', {
-                category: 'room',
-                subcategory: category.id
-              })
-            }
+            onPress={() => handleRoomPress(category.id)}
           />
         ))}
       </ScrollView>

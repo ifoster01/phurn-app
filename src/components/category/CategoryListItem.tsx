@@ -2,10 +2,11 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { List, useTheme } from 'react-native-paper';
 import { subCategoryMap } from '@/constants/categories';
+import { useProductFilter } from '@/providers/ProductFilterProvider';
 
 interface Props {
   title: string;
-  onPress: () => void;
+  onPress: (subCategory: string) => void;
   hasSubcategories?: boolean;
 }
 
@@ -34,7 +35,7 @@ export function CategoryListItem({ title, onPress, hasSubcategories = false }: P
           <List.Item
             key={subCategory}
             title={subCategory}
-            onPress={() => onPress()}
+            onPress={() => onPress(subCategory.toLowerCase())}
             style={styles.subItem}
             titleStyle={styles.subItemTitle}
             right={props => <List.Icon {...props} icon="chevron-right" />}
@@ -47,7 +48,7 @@ export function CategoryListItem({ title, onPress, hasSubcategories = false }: P
   return (
     <List.Item
       title={title}
-      onPress={onPress}
+      onPress={() => onPress(title.toLowerCase())}
       style={styles.item}
       titleStyle={styles.title}
       right={props => <List.Icon {...props} icon="chevron-right" />}

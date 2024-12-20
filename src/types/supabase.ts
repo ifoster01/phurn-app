@@ -40,36 +40,54 @@ export type Database = {
           created_at: string
           current_price: number | null
           description: string | null
+          furniture_type: string | null
           id: string
           img_src_url: string | null
+          material: string | null
           name: string | null
           navigate_url: string | null
+          new_product: boolean | null
+          on_clearance: boolean | null
           regular_price: number | null
+          room_type: string | null
           sku: string
+          style_type: string | null
         }
         Insert: {
           brand?: string | null
           created_at?: string
           current_price?: number | null
           description?: string | null
+          furniture_type?: string | null
           id?: string
           img_src_url?: string | null
+          material?: string | null
           name?: string | null
           navigate_url?: string | null
+          new_product?: boolean | null
+          on_clearance?: boolean | null
           regular_price?: number | null
+          room_type?: string | null
           sku: string
+          style_type?: string | null
         }
         Update: {
           brand?: string | null
           created_at?: string
           current_price?: number | null
           description?: string | null
+          furniture_type?: string | null
           id?: string
           img_src_url?: string | null
+          material?: string | null
           name?: string | null
           navigate_url?: string | null
+          new_product?: boolean | null
+          on_clearance?: boolean | null
           regular_price?: number | null
+          room_type?: string | null
           sku?: string
+          style_type?: string | null
         }
         Relationships: []
       }
@@ -84,7 +102,7 @@ export type Database = {
         Insert: {
           created_at?: string
           furniture_id?: string
-          id: string
+          id?: string
           user_id?: string | null
           wishlist_id?: string | null
         }
@@ -117,19 +135,19 @@ export type Database = {
           created_at: string
           id: string
           name: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
-          id: string
+          id?: string
           name?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }

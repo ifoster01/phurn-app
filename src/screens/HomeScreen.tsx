@@ -6,6 +6,7 @@ import { CategoryCard } from '@/components/home/CategoryCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
 import PhurnLogo from '@/assets/logos/phurn.svg';
+import { useProductFilter } from '@/providers/ProductFilterProvider';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'HomeScreen'>;
 
@@ -22,7 +23,7 @@ const categories: Category[] = [
     image: require('@/assets/images/categories/new-image.png')
   },
   { 
-    id: 'deals', 
+    id: 'clearance', 
     title: 'Best Deals', 
     image: require('@/assets/images/categories/best-deals.jpeg')
   },
@@ -44,6 +45,32 @@ const categories: Category[] = [
 ];
 
 export function HomeScreen({ navigation }: Props) {
+  const { setCategory, setSubcategory, clearFilters } = useProductFilter();
+
+  const handleCategoryPress = (categoryId: string) => {
+    clearFilters(); // Clear any existing filters first
+    
+    if (categoryId === 'new') {
+      setCategory('new');
+      navigation.navigate('ProductList', {
+        category: categoryId
+      });
+    } else if (categoryId === 'clearance') {
+      setCategory('clearance');
+      navigation.navigate('ProductList', {
+        category: categoryId
+      });
+    } else if (categoryId === 'room') {
+      setCategory('room');
+      navigation.navigate('RoomList');
+    } else {
+      setCategory(categoryId as 'type' | 'brand');
+      navigation.navigate('CategoryList', {
+        category: categoryId
+      });
+    }
+  };
+
   return (
     <SafeAreaWrapper>
       <View style={styles.header}>
@@ -59,19 +86,7 @@ export function HomeScreen({ navigation }: Props) {
             key={category.id}
             title={category.title}
             image={category.image}
-            onPress={() => {
-              if (category.id === 'new') {
-                navigation.navigate('ProductList', {
-                  category: category.id
-                })
-              } else if (category.id === 'room') {
-                navigation.navigate('RoomList')
-              } else {
-                navigation.navigate('CategoryList', {
-                  category: category.id
-                })
-              }
-            }}
+            onPress={() => handleCategoryPress(category.id)}
           />
         ))}
       </ScrollView>

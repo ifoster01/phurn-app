@@ -6,6 +6,7 @@ interface Props {
   title: string;
   brand: string;
   price: number;
+  regPrice: number;
   image: string;
   onPress: () => void;
   onFavoritePress: () => void;
@@ -19,6 +20,7 @@ export function ProductCard({
   title,
   brand,
   price,
+  regPrice,
   image,
   onPress,
   onFavoritePress,
@@ -39,7 +41,13 @@ export function ProductCard({
       <View style={styles.details}>
         <Text style={styles.brand}>{brand}</Text>
         <Text style={styles.title} numberOfLines={2}>{title.replace('\\', '"')}</Text>
-        <Text style={styles.price}>${price}</Text>
+        <View style={styles.priceContainer}>
+          <Text style={{
+            ...styles.price,
+            color: price < regPrice ? '#EF5350' : '#333',
+          }}>${price}</Text>
+          { price < regPrice && <Text style={styles.regPrice}>${regPrice}</Text> }
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -68,6 +76,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 6,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  regPrice: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 8,
   },
   details: {
     paddingTop: 8,

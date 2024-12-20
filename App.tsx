@@ -5,10 +5,11 @@ import { AppNavigator } from '@/navigation/AppNavigator';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTheme } from '@/hooks/useTheme';
-import { StatusBar } from 'expo-status-bar';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { env } from '@/config/env';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { FilterProvider } from '@/providers/FilterProvider';
+import { ProductFilterProvider } from '@/providers/ProductFilterProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 
@@ -28,10 +29,13 @@ export default function App() {
       <PaperProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <NavigationContainer>
-              <AppNavigator />
-              <StatusBar style="auto" />
-            </NavigationContainer>
+            <ProductFilterProvider>
+              <FilterProvider>
+                <NavigationContainer>
+                  <AppNavigator />
+                </NavigationContainer>
+              </FilterProvider>
+            </ProductFilterProvider>
           </AuthProvider>
         </QueryClientProvider>
       </PaperProvider>

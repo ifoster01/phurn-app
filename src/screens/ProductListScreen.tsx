@@ -12,6 +12,7 @@ import { useWishlists, WishlistItem } from '@/hooks/api/useWishlists';
 import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { categories, roomCategories } from '@/constants/categories';
 
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList, 'ProductList'>,
@@ -95,7 +96,7 @@ export function ProductListScreen({ navigation, route }: Props) {
     <SafeAreaWrapper>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={subcategory ? `${subcategory} Tables` : 'Products'} />
+        <Appbar.Content title={subcategory ? `${subcategory.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` : 'New Products'} />
         <Appbar.Action icon="tune" onPress={() => {}} />
       </Appbar.Header>
       <SearchBar />
@@ -116,6 +117,7 @@ export function ProductListScreen({ navigation, route }: Props) {
               title={item.name || ''}
               brand={item.brand || ''}
               price={item.current_price || 0}
+              regPrice={item.regular_price || 0}
               image={item.img_src_url || ''}
               isFavorite={isInWishlist(item.id)}
               onPress={() => {}}
@@ -147,6 +149,10 @@ const styles = StyleSheet.create({
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  countContainer: {
+    padding: 8,
     alignItems: 'center',
   },
   listContent: {
