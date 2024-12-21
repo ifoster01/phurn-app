@@ -54,7 +54,7 @@ export function RoomListScreen({ navigation }: Props) {
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header>
+      <Appbar.Header style={{ marginTop: -44 }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title="Shop By Room" />
       </Appbar.Header>

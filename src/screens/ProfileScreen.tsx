@@ -58,7 +58,7 @@ export function ProfileScreen() {
   if (!user) {
     return (
       <SafeAreaWrapper>
-        <Appbar.Header>
+        <Appbar.Header style={{ marginTop: -44 }}>
           <Appbar.Content title="Account" />
         </Appbar.Header>
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
@@ -137,7 +137,7 @@ export function ProfileScreen() {
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header>
+      <Appbar.Header style={{ marginTop: -44 }}>
         <Appbar.Content title="Account" />
       </Appbar.Header>
 

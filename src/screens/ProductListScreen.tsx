@@ -13,6 +13,7 @@ import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { categories, roomCategories } from '@/constants/categories';
+import { FilterDrawer } from '@/components/filter/FilterDrawer';
 
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList, 'ProductList'>,
@@ -28,6 +29,9 @@ export function ProductListScreen({ navigation, route }: Props) {
   const { category, subcategory } = route.params;
   const { user } = useAuth();
   const [selectedFurnitureId, setSelectedFurnitureId] = useState<string | null>(null);
+  const [filterDrawerVisible, setFilterDrawerVisible] = useState(false);
+  const showFilterDrawer = () => setFilterDrawerVisible(true);
+  const hideFilterDrawer = () => setFilterDrawerVisible(false);
   
   const { 
     data,
@@ -94,10 +98,10 @@ export function ProductListScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header>
+      <Appbar.Header style={{ marginTop: -44 }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={subcategory ? `${subcategory.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` : 'New Products'} />
-        <Appbar.Action icon="tune" onPress={() => {}} />
+        <Appbar.Action icon="tune-variant" onPress={showFilterDrawer} />
       </Appbar.Header>
       <SearchBar />
       
@@ -135,6 +139,11 @@ export function ProductListScreen({ navigation, route }: Props) {
           onRefresh={() => refetchWithReset()}
         />
       )}
+
+      <FilterDrawer
+        visible={filterDrawerVisible}
+        onDismiss={hideFilterDrawer}
+      />
 
       <AddToWishlistDrawer
         visible={!!selectedFurnitureId}

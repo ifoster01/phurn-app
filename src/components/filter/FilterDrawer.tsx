@@ -22,14 +22,18 @@ const CATEGORIES = {
   ],
 };
 
-export function FilterDrawer() {
+interface FilterDrawerProps {
+  visible: boolean;
+  onDismiss: () => void;
+}
+
+export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
   const theme = useTheme();
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['75%'], []);
 
   const {
     isFilterDrawerOpen,
-    closeFilterDrawer,
     categoryType,
     category,
     subcategory,
@@ -42,9 +46,9 @@ export function FilterDrawer() {
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      closeFilterDrawer();
+      onDismiss();
     }
-  }, [closeFilterDrawer]);
+  }, [onDismiss]);
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -60,12 +64,12 @@ export function FilterDrawer() {
 
   // Effects
   React.useEffect(() => {
-    if (isFilterDrawerOpen) {
+    if (visible) {
       bottomSheetRef.current?.expand();
     } else {
       bottomSheetRef.current?.close();
     }
-  }, [isFilterDrawerOpen]);
+  }, [visible]);
 
   const handleCategoryTypeSelect = (type: CategoryType) => {
     setCategoryType(type);
@@ -178,7 +182,7 @@ export function FilterDrawer() {
             <View style={styles.footer}>
               <Button
                 mode="contained"
-                onPress={closeFilterDrawer}
+                onPress={onDismiss}
                 style={styles.applyButton}
               >
                 Apply Filters

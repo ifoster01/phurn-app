@@ -45,7 +45,7 @@ export function ProductCard({
           <Text style={{
             ...styles.price,
             color: price < regPrice ? '#EF5350' : '#333',
-          }}>${price}</Text>
+          }}>{price.toLocaleString("en-US", {currency: "USD", style: "currency"})}</Text>
           { price < regPrice && <Text style={styles.regPrice}>${regPrice}</Text> }
         </View>
       </View>
@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginLeft: 8,
+    textDecorationLine: 'line-through',
   },
   details: {
     paddingTop: 8,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   price: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
   },

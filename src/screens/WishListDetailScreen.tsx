@@ -58,7 +58,7 @@ export function WishListDetailScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header>
+      <Appbar.Header style={{ marginTop: -44 }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={wishlist.name} />
       </Appbar.Header>
@@ -76,6 +76,7 @@ export function WishListDetailScreen({ navigation, route }: Props) {
             price={item.furniture.current_price || 0}
             image={item.furniture.img_src_url || ''}
             isFavorite={isInWishlist(item.furniture_id)}
+            regPrice={item.furniture.regular_price || 0}
             onPress={() => {}}
             onFavoritePress={() => handleFavoritePress(item.furniture_id)}
           />

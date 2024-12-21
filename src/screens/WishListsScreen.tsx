@@ -10,6 +10,7 @@ import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, TabParamList } from '@/navigation/types';
+import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
 
 type NavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Wishlists'>,
@@ -21,9 +22,10 @@ interface WishlistSectionProps {
   onDelete: (id: string) => Promise<void>;
   isDeleting: boolean;
   onNavigate: (id: string) => void;
+  onEdit: (id: string, name: string) => void;
 }
 
-function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate }: WishlistSectionProps) {
+function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }: WishlistSectionProps) {
   const thumbnails = wishlist.items
     .slice(0, 4)
     .map(item => item.furniture.img_src_url)
@@ -38,13 +40,22 @@ function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate }: Wishlis
             ({wishlist.items.length} {wishlist.items.length === 1 ? 'item' : 'items'})
           </Text>
         </View>
-        <Button 
-          mode="text" 
-          textColor="#E85D3F"
-          onPress={() => onNavigate(wishlist.id)}
-        >
-          View List
-        </Button>
+        <View style={styles.headerButtons}>
+          <Button 
+            mode="text"
+            icon="pencil"
+            onPress={() => onEdit(wishlist.id, wishlist.name)}
+          >
+            Edit
+          </Button>
+          <Button 
+            mode="text" 
+            textColor="#E85D3F"
+            onPress={() => onNavigate(wishlist.id)}
+          >
+            View List
+          </Button>
+        </View>
       </View>
 
       <View style={styles.thumbnailGrid}>
@@ -82,6 +93,7 @@ export function WishListsScreen() {
   const { user } = useAuth();
   const navigation = useNavigation<NavigationProp>();
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [selectedWishlist, setSelectedWishlist] = useState<{ id: string; name: string } | null>(null);
   const { data: wishlistData, isLoading, isError, refetch } = useWishlists();
   const deleteWishlist = useDeleteWishlist();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -119,6 +131,10 @@ export function WishListsScreen() {
 
   const handleNavigateToWishlist = (wishlistId: string) => {
     navigation.navigate('WishListDetail', { wishlistId });
+  };
+
+  const handleEditWishlist = (wishlistId: string, wishlistName: string) => {
+    setSelectedWishlist({ id: wishlistId, name: wishlistName });
   };
 
   if (!user) {
@@ -193,6 +209,7 @@ export function WishListsScreen() {
               onDelete={(id) => handleDeleteWishlist(id, wishlist.name)}
               isDeleting={deleteWishlist.isPending}
               onNavigate={handleNavigateToWishlist}
+              onEdit={(id, name) => handleEditWishlist(id, name)}
             />
           ))}
         </ScrollView>
@@ -210,10 +227,20 @@ export function WishListsScreen() {
           onCreateSuccess={handleCreateSuccess}
         />
 
+        {selectedWishlist && (
+          <EditWishlistModal
+            visible={!!selectedWishlist}
+            onDismiss={() => setSelectedWishlist(null)}
+            wishlistId={selectedWishlist.id}
+            currentName={selectedWishlist.name}
+          />
+        )}
+
         <Snackbar
           visible={!!successMessage}
           onDismiss={() => setSuccessMessage(null)}
           duration={2000}
+          wrapperStyle={{ top: 0 }}
         >
           {successMessage}
         </Snackbar>
@@ -297,5 +324,10 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     marginTop: 16,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 });

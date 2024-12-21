@@ -20,6 +20,7 @@ export interface WishlistItem {
     name: string;
     img_src_url: string;
     current_price: number;
+    regular_price: number;
     brand: string;
   };
 }
@@ -52,6 +53,7 @@ export function useWishlists() {
             name,
             img_src_url,
             current_price,
+            regular_price,
             brand
           )
         `)

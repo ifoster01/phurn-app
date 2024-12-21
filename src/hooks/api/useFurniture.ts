@@ -73,11 +73,18 @@ export function useFurniture() {
 
       if (error) throw error;
 
+      const filteredData = data.filter((item) => {
+        if (item.brand === 'ARHAUS') {
+          return item.img_src_url.includes('product/StandardV2');
+        }
+        return true;
+      });
+
       const totalCount = count || 0;
       const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
       return {
-        items: data as Furniture[],
+        items: filteredData as Furniture[],
         totalCount,
         totalPages,
         hasNextPage: pageParam < totalPages,

@@ -34,7 +34,7 @@ export function CategoryListScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header>
+      <Appbar.Header style={{ marginTop: -44 }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={`Shop By ${categoryTitle}`} />
       </Appbar.Header>
