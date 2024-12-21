@@ -24,7 +24,7 @@ interface ProductFilterState {
   // Helper methods
   getFilterFunction: () => ((item: Furniture) => boolean) | null
   hasActiveFilters: () => boolean
-  getFilterSummary: () => string
+  getFilterSummary: () => string[]
 }
 
 // Define filter mappings
@@ -40,7 +40,7 @@ const FILTER_MAPPINGS = {
 }
 
 // Define human-readable category names
-const CATEGORY_NAMES = {
+export const CATEGORY_NAMES = {
   new: 'New Arrivals',
   clearance: 'Clearance',
   type: 'Shop by Type',
@@ -121,15 +121,18 @@ export const useProductFilterStore = create<ProductFilterState>()(
         const parts: string[] = []
         
         if (category) {
-          const categoryName = CATEGORY_NAMES[category]
-          parts.push(subcategory ? `${categoryName} • ${subcategory}` : categoryName)
+          parts.push(category)
         }
         
         if (roomType) {
-          parts.push(`Room: ${roomType.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}`)
+          parts.push(roomType)
         }
-        
-        return parts.length > 0 ? parts.join(' | ') : 'All Products'
+
+        if (subcategory) {
+          parts.push(subcategory)
+        }
+
+        return parts
       },
     }),
     {

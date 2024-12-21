@@ -20,7 +20,7 @@ interface ProductFilterContextType {
   // Helper methods
   getFilterFunction: () => ((item: Furniture) => boolean) | null;
   hasActiveFilters: () => boolean;
-  getFilterSummary: () => string;
+  getFilterSummary: () => string[];
   
   // Filtered data helper
   filterData: (data: Furniture[]) => Furniture[];

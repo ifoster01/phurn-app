@@ -6,6 +6,8 @@ interface CategoryItem {
 
 export type CategoryType = 'new' | 'deals' | 'type' | 'brand' | 'room';
 export type RoomType = 'living-room' | 'bedroom' | 'dining-room' | 'office';
+export const CategoryEnum = ['new', 'deals', 'type', 'brand', 'room'] as const;
+export const RoomEnum = ['living-room', 'bedroom', 'dining-room', 'office'] as const;
 
 export const categories: Record<CategoryType, CategoryItem[]> = {
   new: [
@@ -103,7 +105,6 @@ export const subCategoryMap = {
 } as const;
 
 export const subcategory_map = {
-
   'sectionals': 'sectional',
   'daybeds': 'daybed',
   'accent chairs': 'accent chair',
