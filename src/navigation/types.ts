@@ -35,7 +35,7 @@ export type TabScreenProps<T extends keyof TabParamList> =
 export type HomeStackParamList = {
   HomeScreen: undefined;
   CategoryList: { category: string; subcategory?: string };
-  ProductList: { category: string; subcategory?: string };
+  ProductList: { category?: string; subcategory?: string; searchQuery?: string };
   RoomList: undefined;
 };
 

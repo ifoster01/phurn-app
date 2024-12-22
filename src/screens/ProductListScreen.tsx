@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { Appbar, IconButton, Text } from 'react-native-paper';
+import { Appbar, IconButton, Text, Button, useTheme, Chip } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { NativeStackScreenProps, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList, RootStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFurniture } from '@/hooks/api/useFurniture';
-import { useWishlists, WishlistItem } from '@/hooks/api/useWishlists';
+import { useWishlists } from '@/hooks/api/useWishlists';
 import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
-import type { CompositeNavigationProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FilterDrawer } from '@/components/filter/FilterDrawer';
 import { useProductFilter } from '@/providers/ProductFilterProvider';
 import { FILTER_NAMES } from '@/stores/useProductFilterStore';
+import type { Furniture } from '@/hooks/api/useFurniture';
 
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList, 'ProductList'>,
@@ -26,13 +26,15 @@ type Props = {
   route: NativeStackScreenProps<HomeStackParamList, 'ProductList'>['route'];
 };
 
-export function ProductListScreen({ navigation, route }: Props) {
-  const { category, subcategory } = route.params;
+export function ProductListScreen({ navigation, route }: Props): React.JSX.Element {
+  const { category, subcategory, searchQuery } = route.params ?? {};
   const { user } = useAuth();
+  const theme = useTheme();
   const [selectedFurnitureId, setSelectedFurnitureId] = useState<string | null>(null);
   const [filterDrawerVisible, setFilterDrawerVisible] = useState(false);
-  const showFilterDrawer = () => setFilterDrawerVisible(true);
-  const hideFilterDrawer = () => setFilterDrawerVisible(false);
+  
+  const showFilterDrawer = useCallback(() => setFilterDrawerVisible(true), []);
+  const hideFilterDrawer = useCallback(() => setFilterDrawerVisible(false), []);
   
   const {
     filterCategories,
@@ -48,18 +50,19 @@ export function ProductListScreen({ navigation, route }: Props) {
     refetchWithReset,
     isRefetching,
     error,
-  } = useFurniture();
-  
+  } = useFurniture({ searchQuery });
+
   const { data: wishlistData } = useWishlists();
 
-  // Get the screen title based on current state
-  const getScreenTitle = () => {
-    // First check filter categories
-    if (filterCategories.length > 0) {
-      return filterCategories.map(cat => FILTER_NAMES[cat as keyof typeof FILTER_NAMES]).join(' & ');
+  const getScreenTitle = useCallback((): string => {
+    if (searchQuery) {
+      return 'Search Results';
     }
 
-    // Then check navigation state
+    if (filterCategories.length > 0) {
+      return filterCategories.map(cat => FILTER_NAMES[cat]).join(' & ');
+    }
+
     if (subcategory) {
       return subcategory.split('-').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1)
@@ -67,44 +70,78 @@ export function ProductListScreen({ navigation, route }: Props) {
     }
 
     return 'Products';
-  };
+  }, [searchQuery, filterCategories, subcategory]);
 
-  // Flatten all pages of items into a single array
   const allItems = data?.pages.flatMap(page => page.items) ?? [];
 
-  const isInWishlist = (furnitureId: string): boolean => {
+  const isInWishlist = useCallback((furnitureId: string): boolean => {
     if (!user || !wishlistData?.groupedItems) return false;
     
     return Object.values(wishlistData.groupedItems).some(wishlist => 
-      wishlist.items.some((item: WishlistItem) => item.furniture_id === furnitureId)
+      wishlist.items.some(item => item.furniture_id === furnitureId)
     );
-  };
+  }, [user, wishlistData?.groupedItems]);
 
-  const handleFavoritePress = (furnitureId: string) => {
+  const handleFavoritePress = useCallback((furnitureId: string): void => {
     if (!user) {
       navigation.navigate('Tabs', { screen: 'Profile' });
       return;
     }
     setSelectedFurnitureId(furnitureId);
+  }, [user, navigation]);
+
+  const handleClearSearch = useCallback((): void => {
+    navigation.setParams({ searchQuery: undefined });
+  }, [navigation]);
+
+  const renderItem = useCallback(({ item }: { item: Furniture }) => (
+    <ProductCard
+      title={item.name || ''}
+      brand={item.brand || ''}
+      price={item.current_price || 0}
+      regPrice={item.regular_price || 0}
+      image={item.img_src_url || ''}
+      isFavorite={isInWishlist(item.id)}
+      onPress={() => {}}
+      onFavoritePress={() => handleFavoritePress(item.id)}
+    />
+  ), [isInWishlist, handleFavoritePress]);
+
+  const renderHeader = () => {
+    if (!searchQuery) return null;
+    return (
+      <View style={styles.searchInfo}>
+        <Chip
+          icon="magnify"
+          onClose={() => navigation.setParams({ searchQuery: undefined })}
+          style={styles.searchChip}
+        >
+          {searchQuery}
+        </Chip>
+        <Text variant="bodySmall" style={styles.resultCount}>
+          {data?.pages[0]?.totalCount ?? 0} results found
+        </Text>
+      </View>
+    );
   };
 
-  const renderFooter = () => {
+  const renderFooter = useCallback(() => {
     if (!hasNextPage) return null;
     return (
       <View style={styles.footer}>
         {isFetchingNextPage ? (
-          <ActivityIndicator size="large" color="#E85D3F" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         ) : (
           <IconButton
             icon="refresh"
             size={24}
-            iconColor="#E85D3F"
+            iconColor={theme.colors.primary}
             onPress={() => fetchNextPage()}
           />
         )}
       </View>
     );
-  };
+  }, [hasNextPage, isFetchingNextPage, theme.colors.primary, fetchNextPage]);
 
   if (error) {
     return (
@@ -119,36 +156,40 @@ export function ProductListScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header style={{ marginTop: -44 }}>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
+      <Appbar.Header style={styles.header}>
+        <Appbar.BackAction onPress={navigation.goBack} />
         <Appbar.Content title={getScreenTitle()} />
         <Appbar.Action icon="tune-variant" onPress={showFilterDrawer} />
       </Appbar.Header>
-      <SearchBar />
+      
+      <SearchBar initialValue={searchQuery} />
       
       {isLoading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#E85D3F" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
+      ) : allItems.length === 0 ? (
+        <View style={styles.centerContainer}>
+          <Text variant="titleMedium" style={styles.noResults}>No products found</Text>
+          {searchQuery && (
+            <Button 
+              mode="contained" 
+              onPress={handleClearSearch}
+              style={styles.clearSearchButton}
+            >
+              Clear Search
+            </Button>
+          )}
         </View>
       ) : (
         <FlatList
           data={allItems}
           numColumns={2}
+          ListHeaderComponent={renderHeader}
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={styles.columnWrapper}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ProductCard
-              title={item.name || ''}
-              brand={item.brand || ''}
-              price={item.current_price || 0}
-              regPrice={item.regular_price || 0}
-              image={item.img_src_url || ''}
-              isFavorite={isInWishlist(item.id)}
-              onPress={() => {}}
-              onFavoritePress={() => handleFavoritePress(item.id)}
-            />
-          )}
+          renderItem={renderItem}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage();
@@ -157,7 +198,7 @@ export function ProductListScreen({ navigation, route }: Props) {
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
           refreshing={isRefetching}
-          onRefresh={() => refetchWithReset()}
+          onRefresh={refetchWithReset}
         />
       )}
 
@@ -176,6 +217,10 @@ export function ProductListScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    marginTop: -44,
+    elevation: 0,
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -191,5 +236,25 @@ const styles = StyleSheet.create({
   footer: {
     padding: 16,
     alignItems: 'center',
+  },
+  searchInfo: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  searchChip: {
+    backgroundColor: '#F0F0F0',
+  },
+  resultCount: {
+    color: '#666',
+  },
+  clearSearchButton: {
+    marginTop: 16,
+  },
+  noResults: {
+    marginBottom: 8,
+    color: '#666',
   },
 });

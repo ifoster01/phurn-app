@@ -17,7 +17,11 @@ interface FurnitureResponse {
   nextPage: number;
 }
 
-export function useFurniture() {
+interface FurnitureQueryParams {
+  searchQuery?: string;
+}
+
+export function useFurniture(params?: FurnitureQueryParams) {
   const queryClient = useQueryClient();
   const { 
     navigationType,
@@ -34,7 +38,8 @@ export function useFurniture() {
       selectedRooms,
       selectedFurnitureTypes,
       selectedBrands,
-      filterCategories
+      filterCategories,
+      searchQuery: params?.searchQuery
     }
   ] as const;
 
@@ -53,6 +58,11 @@ export function useFurniture() {
       let query = supabase
         .from('furniture')
         .select('*', { count: 'exact' });
+
+      // Apply search query if present
+      if (params?.searchQuery) {
+        query = query.or(`name.ilike.%${params.searchQuery}%,description.ilike.%${params.searchQuery}%`);
+      }
 
       // Apply category filters
       filterCategories.forEach(category => {

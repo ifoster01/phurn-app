@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Portal, Text, Button, useTheme, Chip, Divider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FILTER_NAMES, FilterCategory, FurnitureType, useProductFilterStore } from '@/stores/useProductFilterStore';
 import { categories, roomCategories, RoomType, subcategory_map } from '@/constants/categories';
 
@@ -11,9 +12,9 @@ interface FilterDrawerProps {
   onDismiss: () => void;
 }
 
-// Get screen height
+// Get screen height and adjust for safe area
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.8; // Increased height for more filters
+const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.85; // Slightly increased for better visibility
 
 const FILTER_CATEGORIES: FilterCategory[] = ['new', 'clearance'];
 const ROOM_TYPES = Object.keys(roomCategories) as RoomType[];
@@ -22,8 +23,14 @@ const BRANDS = categories.brand.map(brand => brand.id);
 
 export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const bottomSheetRef = React.useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => [MAX_DRAWER_HEIGHT], []);
+  
+  // Calculate snap points accounting for safe areas
+  const snapPoints = useMemo(() => {
+    const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
+    return [Math.min(MAX_DRAWER_HEIGHT, availableHeight)];
+  }, [insets]);
 
   const {
     filterCategories,
@@ -40,6 +47,7 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     removeBrand,
     clearFilters,
     hasActiveFilters,
+    getFilterSummary,
   } = useProductFilterStore();
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -137,8 +145,10 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
           onChange={handleSheetChanges}
           backdropComponent={renderBackdrop}
           enablePanDownToClose
+          handleIndicatorStyle={styles.handleIndicator}
+          topInset={insets.top}
         >
-          <BottomSheetView style={styles.contentContainer}>
+          <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
             {/* Header */}
             <View style={styles.header}>
               <Text variant="titleLarge" style={styles.title}>
@@ -180,6 +190,19 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
               )}
               
               <Divider style={styles.divider} />
+
+              {/* Brand Filters */}
+              {renderFilterSection(
+                'Brand',
+                BRANDS,
+                selectedBrands,
+                handleBrandPress,
+                (brand) => brand.split('-').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')
+              )}
+              
+              <Divider style={styles.divider} />
               
               {/* Furniture Type Filters */}
               {renderFilterSection(
@@ -188,19 +211,6 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
                 selectedFurnitureTypes,
                 handleFurnitureTypePress,
                 (type) => type.split(' ').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
-              
-              <Divider style={styles.divider} />
-              
-              {/* Brand Filters */}
-              {renderFilterSection(
-                'Brand',
-                BRANDS,
-                selectedBrands,
-                handleBrandPress,
-                (brand) => brand.split('-').map(word => 
                   word.charAt(0).toUpperCase() + word.slice(1)
                 ).join(' ')
               )}
@@ -229,6 +239,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    paddingBottom: 16,
   },
   header: {
     flexDirection: 'row',
@@ -271,5 +282,11 @@ const styles = StyleSheet.create({
   },
   applyButton: {
     width: '100%',
+  },
+  handleIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#DDDDDD',
+    marginTop: 8,
   },
 }); 
