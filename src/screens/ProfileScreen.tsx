@@ -152,7 +152,7 @@ export function ProfileScreen() {
             title="Password"
             description="••••••••••"
             left={(props) => <List.Icon {...props} icon="lock" />}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            // right={(props) => <List.Icon {...props} icon="chevron-right" />}
             onPress={() => {}}
           />
         </List.Section>
