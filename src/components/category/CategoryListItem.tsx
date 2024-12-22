@@ -34,10 +34,7 @@ export function CategoryListItem({ title, onPress, hasSubcategories = false }: P
           <List.Item
             key={subCategory}
             title={subCategory}
-            onPress={() => {
-              console.log('subCategory', subCategory);
-              onPress(subCategory.toLowerCase())
-            }}
+            onPress={() => onPress(subCategory.toLowerCase())}
             style={styles.subItem}
             titleStyle={styles.subItemTitle}
             right={props => <List.Icon {...props} icon="chevron-right" />}

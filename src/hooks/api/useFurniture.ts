@@ -1,13 +1,18 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase';
-import { useProductFilter } from '@/providers/ProductFilterProvider';
+import { useProductFilterStore } from '@/stores/useProductFilterStore';
 import { categories, room_map, subcategory_map } from '@/constants/categories';
 
-export type Furniture = Database['public']['Tables']['furniture']['Row'];
+type Tables = Database['public']['Tables'];
+type FurnitureTable = Tables['furniture']['Row'];
+
+export interface Furniture extends FurnitureTable {
+  discount_percentage: number;
+}
 
 const ITEMS_PER_PAGE = 10;
-const FURNITURE_QUERY_KEY = ['furniture'] as const;
 
 interface FurnitureResponse {
   items: Furniture[];
@@ -29,29 +34,23 @@ export function useFurniture(params?: FurnitureQueryParams) {
     selectedFurnitureTypes,
     selectedBrands,
     filterCategories,
-  } = useProductFilter();
+    priceSort,
+    discountSort,
+  } = useProductFilterStore();
 
-  const queryKey = [
-    FURNITURE_QUERY_KEY[0],
-    {
+  return useInfiniteQuery({
+    queryKey: ['furniture', {
       navigationType,
       selectedRooms,
       selectedFurnitureTypes,
       selectedBrands,
       filterCategories,
-      searchQuery: params?.searchQuery
-    }
-  ] as const;
-
-  const query = useInfiniteQuery<
-    FurnitureResponse,
-    Error,
-    { pages: FurnitureResponse[] },
-    typeof queryKey,
-    number
-  >({
-    queryKey,
-    queryFn: async ({ pageParam }) => {
+      searchQuery: params?.searchQuery,
+      priceSort,
+      discountSort,
+    }] as const,
+    
+    queryFn: async ({ pageParam = 1 }) => {
       const start = (pageParam - 1) * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE - 1;
 
@@ -93,37 +92,59 @@ export function useFurniture(params?: FurnitureQueryParams) {
 
       // Apply brand filters
       if (selectedBrands.length > 0) {
-        query = query.in('brand', categories['brand'].filter(brand => selectedBrands.includes(brand.id)).map(brand => brand.title));
+        query = query.in('brand', categories['brand']
+          .filter(brand => selectedBrands.includes(brand.id))
+          .map(brand => brand.title)
+        );
       }
 
-      // Execute query with pagination
+      // Apply sorting
+      if (priceSort !== 'none') {
+        query = query.order('current_price', {
+          ascending: priceSort === 'low-to-high',
+          nullsFirst: false
+        });
+      } else if (discountSort === 'highest-first') {
+        query = query
+          .not('discount_percent', 'is', null)
+          .order('discount_percent', { ascending: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+
       const { data, error, count } = await query
-        .range(start, end)
-        .order('created_at', { ascending: false });
+        .returns<FurnitureTable[]>()
+        .range(start, end);
 
-      if (error) throw error;
+      if (error) {
+        console.error(error);
+        throw new Error(error.message);
+      }
 
-      const totalCount = count || 0;
+      // Use the database discount_percent for consistency
+      const processResults = (items: FurnitureTable[]): Furniture[] => {
+        return items.map(item => ({
+          ...item,
+          discount_percentage: item.discount_percent ?? 0
+        }));
+      };
+
+      const totalCount = count ?? 0;
       const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
       const nextPage = start + ITEMS_PER_PAGE < totalCount ? pageParam + 1 : null;
 
       return {
-        items: data || [],
+        items: processResults(data ?? []),
         totalCount,
         totalPages,
         hasNextPage: Boolean(nextPage),
-        nextPage: nextPage || pageParam,
+        nextPage: nextPage ?? pageParam,
       };
     },
-    getNextPageParam: (lastPage) => lastPage.hasNextPage ? lastPage.nextPage : undefined,
-    initialPageParam: 1,
-  });
 
-  return {
-    ...query,
-    refetchWithReset: async () => {
-      await queryClient.resetQueries({ queryKey });
-      return query.refetch();
-    },
-  };
+    initialPageParam: 1,
+    
+    getNextPageParam: (lastPage) => 
+      lastPage.hasNextPage ? lastPage.nextPage : undefined,
+  });
 } 

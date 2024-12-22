@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Portal, Text, Button, useTheme, Chip, Divider } from 'react-native-paper';
+import { Portal, Text, Button, useTheme, Chip, Divider, RadioButton } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FILTER_NAMES, FilterCategory, FurnitureType, useProductFilterStore } from '@/stores/useProductFilterStore';
+import { FILTER_NAMES, FilterCategory, FurnitureType, PriceSortType, DiscountSortType, SORT_NAMES, useProductFilterStore } from '@/stores/useProductFilterStore';
 import { categories, roomCategories, RoomType, subcategory_map } from '@/constants/categories';
 
 interface FilterDrawerProps {
@@ -47,7 +47,11 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     removeBrand,
     clearFilters,
     hasActiveFilters,
-    getFilterSummary,
+    priceSort,
+    discountSort,
+    setPriceSort,
+    setDiscountSort,
+    clearSorting,
   } = useProductFilterStore();
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -108,6 +112,11 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     }
   };
 
+  const handleClearAll = () => {
+    clearFilters();
+    clearSorting();
+  };
+
   const renderFilterSection = <T extends string>(
     title: string,
     items: T[],
@@ -125,12 +134,72 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
             key={item}
             selected={selectedItems.includes(item)}
             onPress={() => onPress(item)}
-            style={styles.chip}
+            style={[
+              styles.chip,
+              selectedItems.includes(item) && styles.selectedChip
+            ]}
             mode="outlined"
           >
             {formatLabel ? formatLabel(item) : item}
           </Chip>
         ))}
+      </View>
+    </>
+  );
+
+  const renderSortingOption = (
+    label: string,
+    value: string,
+    currentValue: string,
+  ) => {
+    const isSelected = value === currentValue;
+    const backgroundColor = isSelected ? 'rgba(243, 79, 35, 0.1)' : 'transparent';
+    
+    return (
+      <View style={[styles.radioItem, { backgroundColor }]}>
+        <RadioButton.Item
+          label={label}
+          value={value}
+          position="trailing"
+          labelStyle={[
+            styles.radioLabel,
+            isSelected && styles.selectedRadioLabel
+          ]}
+          style={styles.radioButton}
+        />
+      </View>
+    );
+  };
+
+  const renderSortingSection = () => (
+    <>
+      <Text variant="titleMedium" style={styles.sectionTitle}>
+        Sorting
+      </Text>
+      
+      <View style={styles.sortingContainer}>
+        <Text variant="bodyMedium" style={styles.sortingSubtitle}>
+          Price
+        </Text>
+        <RadioButton.Group 
+          onValueChange={value => setPriceSort(value as PriceSortType)} 
+          value={priceSort}
+        >
+          {renderSortingOption(SORT_NAMES['none'], 'none', priceSort)}
+          {renderSortingOption(SORT_NAMES['high-to-low'], 'high-to-low', priceSort)}
+          {renderSortingOption(SORT_NAMES['low-to-high'], 'low-to-high', priceSort)}
+        </RadioButton.Group>
+
+        <Text variant="bodyMedium" style={[styles.sortingSubtitle, styles.sortingSpacing]}>
+          Discount
+        </Text>
+        <RadioButton.Group 
+          onValueChange={value => setDiscountSort(value as DiscountSortType)} 
+          value={discountSort}
+        >
+          {renderSortingOption(SORT_NAMES['none'], 'none', discountSort)}
+          {renderSortingOption(SORT_NAMES['highest-first'], 'highest-first', discountSort)}
+        </RadioButton.Group>
       </View>
     </>
   );
@@ -152,10 +221,10 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
             {/* Header */}
             <View style={styles.header}>
               <Text variant="titleLarge" style={styles.title}>
-                Filters
+                Filters & Sorting
               </Text>
-              {hasActiveFilters() && (
-                <Button onPress={clearFilters} textColor={theme.colors.error}>
+              {(hasActiveFilters() || priceSort !== 'none' || discountSort !== 'none') && (
+                <Button onPress={handleClearAll} textColor={theme.colors.error}>
                   Clear All
                 </Button>
               )}
@@ -167,6 +236,11 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollViewContent}
             >
+              {/* Sorting Section */}
+              {renderSortingSection()}
+              
+              <Divider style={styles.divider} />
+
               {/* Special Filters */}
               {renderFilterSection(
                 'Special',
@@ -223,7 +297,7 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
                 onPress={onDismiss}
                 style={styles.applyButton}
               >
-                Apply Filters
+                Apply
               </Button>
             </View>
           </BottomSheetView>
@@ -272,6 +346,9 @@ const styles = StyleSheet.create({
   chip: {
     marginBottom: 8,
   },
+  selectedChip: {
+    backgroundColor: 'rgba(243, 79, 35, 0.1)',
+  },
   divider: {
     marginVertical: 8,
   },
@@ -288,5 +365,32 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: '#DDDDDD',
     marginTop: 8,
+  },
+  sortingContainer: {
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  sortingSubtitle: {
+    marginTop: 8,
+    marginBottom: 4,
+    fontWeight: '700',
+  },
+  sortingSpacing: {
+    marginTop: 16,
+  },
+  radioItem: {
+    marginVertical: 2,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  radioLabel: {
+    fontSize: 14,
+    marginLeft: -8,
+  },
+  selectedRadioLabel: {
+    fontWeight: '500',
+  },
+  radioButton: {
+    paddingVertical: 6,
   },
 }); 

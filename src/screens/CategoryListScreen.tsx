@@ -41,8 +41,6 @@ export function CategoryListScreen({ navigation, route }: Props) {
   const handleItemPress = (itemId: string) => {
     clearFilters(); // Clear existing filters
 
-    console.log(category, subcategory, itemId);
-
     if (category === 'room') {
       if (subcategory) {
         // If we're in a room subcategory, add both room and furniture type filters

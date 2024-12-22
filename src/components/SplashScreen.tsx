@@ -18,7 +18,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete 
       }).start(() => {
         onAnimationComplete();
       });
-    }, 2500);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [fadeAnim, onAnimationComplete]);

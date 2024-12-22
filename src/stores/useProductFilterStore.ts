@@ -13,11 +13,20 @@ export type FurnitureType = keyof typeof subcategory_map
 
 // Filter types
 export type FilterCategory = 'new' | 'clearance'
+export type PriceSortType = 'none' | 'high-to-low' | 'low-to-high'
+export type DiscountSortType = 'none' | 'highest-first'
 
 export const FILTER_NAMES = {
   new: 'New Arrivals',
   clearance: 'Clearance'
 } as const
+
+export const SORT_NAMES: Record<PriceSortType | DiscountSortType, string> = {
+  'none': 'No sorting',
+  'high-to-low': 'Price: High to Low',
+  'low-to-high': 'Price: Low to High',
+  'highest-first': 'Biggest Discount First',
+}
 
 interface ProductFilterState {
   // Navigation state
@@ -28,6 +37,10 @@ interface ProductFilterState {
   selectedRooms: RoomType[]
   selectedFurnitureTypes: FurnitureType[]
   selectedBrands: string[]
+  
+  // New sorting state
+  priceSort: PriceSortType
+  discountSort: DiscountSortType
   
   // Navigation setters
   setNavigationType: (type: NavigationType) => void
@@ -57,6 +70,16 @@ interface ProductFilterState {
   getFilterFunction: () => ((item: Furniture) => boolean) | null
   hasActiveFilters: () => boolean
   getFilterSummary: () => string[]
+  
+  // New sorting actions
+  setPriceSort: (sort: PriceSortType) => void
+  setDiscountSort: (sort: DiscountSortType) => void
+  clearSorting: () => void
+  hasActiveSorting: () => boolean
+  getSortSummary: () => string
+  
+  // Add sorting function
+  getSortFunction: () => ((a: Furniture, b: Furniture) => number) | null;
 }
 
 // Define filter mappings
@@ -74,6 +97,10 @@ export const useProductFilterStore = create<ProductFilterState>()(
       selectedRooms: [],
       selectedFurnitureTypes: [],
       selectedBrands: [],
+      
+      // New sorting state
+      priceSort: 'none',
+      discountSort: 'none',
       
       // Navigation setters
       setNavigationType: (type) => set({ navigationType: type }),
@@ -142,7 +169,9 @@ export const useProductFilterStore = create<ProductFilterState>()(
           filterCategories: [],
           selectedRooms: [],
           selectedFurnitureTypes: [],
-          selectedBrands: []
+          selectedBrands: [],
+          priceSort: 'none',
+          discountSort: 'none'
         })
       },
       
@@ -152,7 +181,9 @@ export const useProductFilterStore = create<ProductFilterState>()(
           filterCategories: [],
           selectedRooms: [],
           selectedFurnitureTypes: [],
-          selectedBrands: []
+          selectedBrands: [],
+          priceSort: 'none',
+          discountSort: 'none'
         })
       },
       
@@ -235,6 +266,68 @@ export const useProductFilterStore = create<ProductFilterState>()(
         })
         
         return parts
+      },
+      
+      // New sorting actions
+      setPriceSort: (sort) =>
+        set((state) => ({
+          priceSort: sort,
+          // Clear discount sort if price sort is set
+          discountSort: sort === 'none' ? state.discountSort : 'none',
+        })),
+      setDiscountSort: (sort) =>
+        set((state) => ({
+          discountSort: sort,
+          // Clear price sort if discount sort is set
+          priceSort: sort === 'none' ? state.priceSort : 'none',
+        })),
+      clearSorting: () =>
+        set({
+          priceSort: 'none',
+          discountSort: 'none',
+        }),
+      hasActiveSorting: () => {
+        const state = get()
+        return state.priceSort !== 'none' || state.discountSort !== 'none'
+      },
+      getSortSummary: () => {
+        const state = get()
+        if (state.priceSort !== 'none') {
+          return SORT_NAMES[state.priceSort]
+        }
+        if (state.discountSort !== 'none') {
+          return SORT_NAMES[state.discountSort]
+        }
+        return ''
+      },
+      
+      // Add sorting function
+      getSortFunction: () => {
+        const { priceSort, discountSort } = get();
+        
+        if (priceSort !== 'none') {
+          return (a: Furniture, b: Furniture) => {
+            const priceA = a.current_price || 0;
+            const priceB = b.current_price || 0;
+            return priceSort === 'high-to-low' ? priceB - priceA : priceA - priceB;
+          };
+        }
+        
+        if (discountSort !== 'none') {
+          return (a: Furniture, b: Furniture) => {
+            const discountA = a.regular_price && a.current_price 
+              ? ((a.regular_price - a.current_price) / a.regular_price) * 100 
+              : 0;
+            const discountB = b.regular_price && b.current_price 
+              ? ((b.regular_price - b.current_price) / b.regular_price) * 100 
+              : 0;
+            return discountSort === 'highest-first' 
+              ? discountB - discountA 
+              : discountA - discountB;
+          };
+        }
+        
+        return null;
       },
     }),
     {

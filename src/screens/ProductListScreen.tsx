@@ -47,7 +47,6 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
     hasNextPage,
     fetchNextPage,
     refetch,
-    refetchWithReset,
     isRefetching,
     error,
   } = useFurniture({ searchQuery });
@@ -198,7 +197,7 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
           refreshing={isRefetching}
-          onRefresh={refetchWithReset}
+          onRefresh={refetch}
         />
       )}
 

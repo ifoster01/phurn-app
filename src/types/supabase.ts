@@ -40,6 +40,7 @@ export type Database = {
           created_at: string
           current_price: number | null
           description: string | null
+          discount_percent: number | null
           furniture_type: string | null
           id: string
           img_src_url: string | null
@@ -58,6 +59,7 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           description?: string | null
+          discount_percent?: number | null
           furniture_type?: string | null
           id?: string
           img_src_url?: string | null
@@ -76,6 +78,7 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           description?: string | null
+          discount_percent?: number | null
           furniture_type?: string | null
           id?: string
           img_src_url?: string | null

@@ -112,7 +112,6 @@ export function useCreateWishlist() {
         .select()
         .single();
 
-      console.log('data', data);
       console.log('error', error);
 
       if (error) throw error;
