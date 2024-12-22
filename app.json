@@ -4,15 +4,10 @@
     "slug": "phurn",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logos/phurn-app-icon.png",
+    "icon": "./assets/logos/phurn-app-icon.jpg",
     "scheme": "phurn",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/logos/phurn-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "usesAppleSignIn": true,
       "supportsTablet": true,

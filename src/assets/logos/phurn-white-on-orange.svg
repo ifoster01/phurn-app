@@ -35,7 +35,9 @@
       }
     </style>
   </defs>
-  <g id="Layer_2"/>
+  <g id="Layer_2">
+    <rect class="st0" x="-.2" width="200.2" height="200.2"/>
+  </g>
   <g id="Layer_1">
     <g id="_x3C_defs">
       <bx:export>

@@ -1,5 +1,5 @@
 import 'react-native-url-polyfill/auto';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppNavigator } from '@/navigation/AppNavigator';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -11,17 +11,24 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { ProductFilterProvider } from '@/providers/ProductFilterProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
+import { SplashScreen } from '@/components/SplashScreen';
 
 const queryClient = new QueryClient()
 
 export default function App() {
   const theme = useTheme()
+  const [showSplash, setShowSplash] = useState(true);
+  
   useEffect(() => {
     GoogleSignin.configure({
       iosClientId: env.google.iosClientId,
       webClientId: env.google.webClientId,
     });
   }, []);
+
+  if (showSplash) {
+    return <SplashScreen onAnimationComplete={() => setShowSplash(false)} />;
+  }
 
   return (
     <GestureHandlerRootView style={styles.container}>
