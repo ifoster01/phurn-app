@@ -8,7 +8,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { env } from '@/config/env';
 import { AuthProvider } from '@/providers/AuthProvider';
-import { FilterProvider } from '@/providers/FilterProvider';
 import { ProductFilterProvider } from '@/providers/ProductFilterProvider';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
@@ -30,11 +29,9 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ProductFilterProvider>
-              <FilterProvider>
-                <NavigationContainer>
-                  <AppNavigator />
-                </NavigationContainer>
-              </FilterProvider>
+              <NavigationContainer>
+                <AppNavigator />
+              </NavigationContainer>
             </ProductFilterProvider>
           </AuthProvider>
         </QueryClientProvider>

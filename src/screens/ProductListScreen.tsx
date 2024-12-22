@@ -12,8 +12,9 @@ import { useWishlists, WishlistItem } from '@/hooks/api/useWishlists';
 import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { categories, roomCategories } from '@/constants/categories';
 import { FilterDrawer } from '@/components/filter/FilterDrawer';
+import { useProductFilter } from '@/providers/ProductFilterProvider';
+import { FILTER_NAMES } from '@/stores/useProductFilterStore';
 
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList, 'ProductList'>,
@@ -33,6 +34,10 @@ export function ProductListScreen({ navigation, route }: Props) {
   const showFilterDrawer = () => setFilterDrawerVisible(true);
   const hideFilterDrawer = () => setFilterDrawerVisible(false);
   
+  const {
+    filterCategories,
+  } = useProductFilter();
+
   const { 
     data,
     isLoading,
@@ -47,13 +52,29 @@ export function ProductListScreen({ navigation, route }: Props) {
   
   const { data: wishlistData } = useWishlists();
 
+  // Get the screen title based on current state
+  const getScreenTitle = () => {
+    // First check filter categories
+    if (filterCategories.length > 0) {
+      return filterCategories.map(cat => FILTER_NAMES[cat as keyof typeof FILTER_NAMES]).join(' & ');
+    }
+
+    // Then check navigation state
+    if (subcategory) {
+      return subcategory.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+    }
+
+    return 'Products';
+  };
+
   // Flatten all pages of items into a single array
   const allItems = data?.pages.flatMap(page => page.items) ?? [];
 
   const isInWishlist = (furnitureId: string): boolean => {
     if (!user || !wishlistData?.groupedItems) return false;
     
-    // Check if the furniture exists in any wishlist
     return Object.values(wishlistData.groupedItems).some(wishlist => 
       wishlist.items.some((item: WishlistItem) => item.furniture_id === furnitureId)
     );
@@ -100,7 +121,7 @@ export function ProductListScreen({ navigation, route }: Props) {
     <SafeAreaWrapper>
       <Appbar.Header style={{ marginTop: -44 }}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={subcategory ? `${subcategory.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` : 'New Products'} />
+        <Appbar.Content title={getScreenTitle()} />
         <Appbar.Action icon="tune-variant" onPress={showFilterDrawer} />
       </Appbar.Header>
       <SearchBar />
@@ -160,20 +181,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  countContainer: {
-    padding: 8,
-    alignItems: 'center',
-  },
   listContent: {
     padding: 8,
-    flexGrow: 1,
   },
   columnWrapper: {
     justifyContent: 'space-between',
     padding: 8,
   },
   footer: {
-    paddingVertical: 20,
+    padding: 16,
     alignItems: 'center',
   },
 });

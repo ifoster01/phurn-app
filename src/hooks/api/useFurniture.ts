@@ -2,12 +2,12 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/supabase';
 import { useProductFilter } from '@/providers/ProductFilterProvider';
-import { room_map, subcategory_map } from '@/constants/categories';
+import { categories, room_map, subcategory_map } from '@/constants/categories';
 
 export type Furniture = Database['public']['Tables']['furniture']['Row'];
 
 const ITEMS_PER_PAGE = 10;
-const FURNITURE_QUERY_KEY = ['furniture', null, null, null] as const;
+const FURNITURE_QUERY_KEY = ['furniture'] as const;
 
 interface FurnitureResponse {
   items: Furniture[];
@@ -19,9 +19,24 @@ interface FurnitureResponse {
 
 export function useFurniture() {
   const queryClient = useQueryClient();
-  const { category, subcategory, roomType } = useProductFilter();
+  const { 
+    navigationType,
+    selectedRooms,
+    selectedFurnitureTypes,
+    selectedBrands,
+    filterCategories,
+  } = useProductFilter();
 
-  const queryKey = [FURNITURE_QUERY_KEY[0], category, subcategory, roomType] as const;
+  const queryKey = [
+    FURNITURE_QUERY_KEY[0],
+    {
+      navigationType,
+      selectedRooms,
+      selectedFurnitureTypes,
+      selectedBrands,
+      filterCategories
+    }
+  ] as const;
 
   const query = useInfiniteQuery<
     FurnitureResponse,
@@ -39,67 +54,66 @@ export function useFurniture() {
         .from('furniture')
         .select('*', { count: 'exact' });
 
-      const formatted_subcategory = subcategory_map[subcategory as keyof typeof subcategory_map] || subcategory;
-      const formatted_roomType = room_map[roomType as keyof typeof room_map] || roomType;
-
-      // Apply category-based filters
-      if (category === 'new') {
-        query = query.eq('new_product', true);
-      } else if (category === 'clearance') {
-        query = query.eq('on_clearance', true);
-      } else if (category && subcategory) {
-        switch (category) {
-          case 'type':
-            if (subcategory === 'shop all furniture') {
-              break;
-            } else {
-              if (formatted_subcategory === 'bed') {
-                query = query.eq('furniture_type', formatted_subcategory);
-              } else {
-                query = query.ilike('furniture_type', `%${formatted_subcategory}%`);
-              }
-            }
-            break;
-          case 'room':
-            query = query.ilike('room_type', `%${formatted_roomType}%`).ilike('furniture_type', `%${formatted_subcategory}%`);
-            break;
-          case 'brand':
-            query = query.ilike('brand', `%${subcategory}%`);
-            break;
+      // Apply category filters
+      filterCategories.forEach(category => {
+        if (category === 'new') {
+          query = query.eq('new_product', true);
+        } else if (category === 'clearance') {
+          query = query.eq('on_clearance', true);
         }
+      });
+
+      // Apply room filters
+      if (selectedRooms.length > 0) {
+        const roomConditions = selectedRooms.map(room => {
+          const formattedRoom = room_map[room];
+          return `room_type.ilike.%${formattedRoom}%`;
+        });
+        query = query.or(roomConditions.join(','));
       }
 
-      const { data, error, count } = await query.range(start, end);
+      // Apply furniture type filters
+      if (selectedFurnitureTypes.length > 0) {
+        const typeConditions = selectedFurnitureTypes.map(type => {
+          const formattedType = subcategory_map[type];
+          return `furniture_type.eq.${formattedType}`;
+        });
+        query = query.or(typeConditions.join(','));
+      }
+
+      // Apply brand filters
+      if (selectedBrands.length > 0) {
+        query = query.in('brand', categories['brand'].filter(brand => selectedBrands.includes(brand.id)).map(brand => brand.title));
+      }
+
+      // Execute query with pagination
+      const { data, error, count } = await query
+        .range(start, end)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const filteredData = data.filter((item) => {
-        if (item.brand === 'ARHAUS') {
-          return item.img_src_url.includes('product/StandardV2');
-        }
-        return true;
-      });
-
       const totalCount = count || 0;
       const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+      const nextPage = start + ITEMS_PER_PAGE < totalCount ? pageParam + 1 : null;
 
       return {
-        items: filteredData as Furniture[],
+        items: data || [],
         totalCount,
         totalPages,
-        hasNextPage: pageParam < totalPages,
-        nextPage: pageParam + 1,
+        hasNextPage: Boolean(nextPage),
+        nextPage: nextPage || pageParam,
       };
     },
-    getNextPageParam: (lastPage) => 
-      lastPage.hasNextPage ? lastPage.nextPage : undefined,
+    getNextPageParam: (lastPage) => lastPage.hasNextPage ? lastPage.nextPage : undefined,
     initialPageParam: 1,
   });
 
-  const refetchWithReset = async () => {
-    await queryClient.resetQueries({ queryKey: FURNITURE_QUERY_KEY });
-    return query.refetch();
+  return {
+    ...query,
+    refetchWithReset: async () => {
+      await queryClient.resetQueries({ queryKey });
+      return query.refetch();
+    },
   };
-
-  return { ...query, refetchWithReset };
 } 

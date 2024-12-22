@@ -29,7 +29,7 @@ export const categories: Record<CategoryType, CategoryItem[]> = {
   ],
   brand: [
     { id: 'west-elm', title: 'West Elm' },
-    { id: 'arhaus', title: 'Arhaus' },
+    { id: 'arhaus', title: 'ARHAUS' },
     { id: 'cb2', title: 'CB2' },
     { id: 'crate-barrel', title: 'Crate & Barrel' },
     { id: 'ikea', title: 'IKEA' },
@@ -52,24 +52,28 @@ export const categories: Record<CategoryType, CategoryItem[]> = {
 
 export const roomCategories: Record<RoomType, CategoryItem[]> = {
   'living-room': [
+    { id: 'all-furniture', title: 'All Furniture' },
     { id: 'sofas', title: 'Sofas' },
     { id: 'chairs', title: 'Chairs' },
     { id: 'coffee-tables', title: 'Coffee Tables' },
     { id: 'tv-stands', title: 'TV Stands' },
   ],
   'bedroom': [
+    { id: 'all-furniture', title: 'All Furniture' },
     { id: 'beds', title: 'Beds' },
     { id: 'headboards', title: 'Headboards' },
     { id: 'dressers', title: 'Dressers' },
     { id: 'nightstands', title: 'Nightstands' },
   ],
   'dining-room': [
+    { id: 'all-furniture', title: 'All Furniture' },
     { id: 'dining-tables', title: 'Dining Tables' },
     { id: 'dining-chairs', title: 'Dining Chairs' },
     { id: 'buffets', title: 'Buffets & Sideboards' },
     { id: 'bar-stools', title: 'Bar & Counter Stools' },
   ],
   'office': [
+    { id: 'all-furniture', title: 'All Furniture' },
     { id: 'desks', title: 'Desks' },
     { id: 'office-chairs', title: 'Office Chairs' },
     { id: 'bookcases', title: 'Bookcases' },

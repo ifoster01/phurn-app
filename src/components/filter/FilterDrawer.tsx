@@ -1,23 +1,24 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Portal, Text, Button, List, useTheme, Divider, Chip, IconButton } from 'react-native-paper';
+import { Portal, Text, Button, useTheme, Chip, Divider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
-import { CATEGORY_NAMES, FilterCategory, RoomType, useProductFilterStore } from '@/stores/useProductFilterStore';
-import { subcategory_map } from '@/constants/categories';
+import { FILTER_NAMES, FilterCategory, FurnitureType, useProductFilterStore } from '@/stores/useProductFilterStore';
+import { categories, roomCategories, RoomType, subcategory_map } from '@/constants/categories';
 
 interface FilterDrawerProps {
   visible: boolean;
   onDismiss: () => void;
 }
 
-const categories = ['new', 'clearance', 'type', 'room']
-const roomTypes = ['living-room', 'bedroom', 'dining-room', 'office']
-const subcategories = Object.keys(subcategory_map)
-
 // Get screen height
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.8; // 80% of screen height
+const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.8; // Increased height for more filters
+
+const FILTER_CATEGORIES: FilterCategory[] = ['new', 'clearance'];
+const ROOM_TYPES = Object.keys(roomCategories) as RoomType[];
+const FURNITURE_TYPES = Object.keys(subcategory_map) as FurnitureType[];
+const BRANDS = categories.brand.map(brand => brand.id);
 
 export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
   const theme = useTheme();
@@ -25,15 +26,20 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
   const snapPoints = useMemo(() => [MAX_DRAWER_HEIGHT], []);
 
   const {
-    category,
-    subcategory,
-    roomType,
+    filterCategories,
+    selectedRooms,
+    selectedFurnitureTypes,
+    selectedBrands,
+    addFilterCategory,
+    removeFilterCategory,
+    addRoom,
+    removeRoom,
+    addFurnitureType,
+    removeFurnitureType,
+    addBrand,
+    removeBrand,
     clearFilters,
     hasActiveFilters,
-    setCategory,
-    setRoomType,
-    setSubcategory,
-    getFilterSummary,
   } = useProductFilterStore();
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -54,7 +60,6 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     []
   );
 
-  // Effects
   useEffect(() => {
     if (visible) {
       bottomSheetRef.current?.expand();
@@ -63,80 +68,87 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     }
   }, [visible]);
 
-  const handleFilterPress = (filter: string, type: 'category' | 'room' | 'subcategory') => {
-    if (category?.toLowerCase() === filter.toLowerCase() && type === 'category') {
-      setCategory(null)
-      return
-    } else if (roomType?.toLowerCase() === filter.toLowerCase() && type === 'room') {
-      setRoomType(null)
-      return
-    } else if (subcategory?.toLowerCase() === filter.toLowerCase() && type === 'subcategory') {
-      setSubcategory(null)
-      return
+  const handleFilterPress = (filter: FilterCategory) => {
+    if (filterCategories.includes(filter)) {
+      removeFilterCategory(filter);
+    } else {
+      addFilterCategory(filter);
     }
+  };
 
-    if (type === 'category') {
-      setCategory(filter as FilterCategory)
-    } else if (type === 'room') {
-      setRoomType(filter as RoomType)
-    } else if (type === 'subcategory') {
-      setSubcategory(filter)
+  const handleRoomPress = (room: RoomType) => {
+    if (selectedRooms.includes(room)) {
+      removeRoom(room);
+    } else {
+      addRoom(room);
     }
-  }
+  };
+
+  const handleFurnitureTypePress = (type: FurnitureType) => {
+    if (selectedFurnitureTypes.includes(type)) {
+      removeFurnitureType(type);
+    } else {
+      addFurnitureType(type);
+    }
+  };
+
+  const handleBrandPress = (brand: string) => {
+    if (selectedBrands.includes(brand)) {
+      removeBrand(brand);
+    } else {
+      addBrand(brand);
+    }
+  };
+
+  const renderFilterSection = <T extends string>(
+    title: string,
+    items: T[],
+    selectedItems: T[],
+    onPress: (item: T) => void,
+    formatLabel?: (item: T) => string
+  ) => (
+    <>
+      <Text variant="titleMedium" style={styles.sectionTitle}>
+        {title}
+      </Text>
+      <View style={styles.chipContainer}>
+        {items.map((item) => (
+          <Chip
+            key={item}
+            selected={selectedItems.includes(item)}
+            onPress={() => onPress(item)}
+            style={styles.chip}
+            mode="outlined"
+          >
+            {formatLabel ? formatLabel(item) : item}
+          </Chip>
+        ))}
+      </View>
+    </>
+  );
 
   return (
     <Portal>
-      <GestureHandlerRootView style={styles.gestureRoot}>
+      <GestureHandlerRootView style={styles.container}>
         <BottomSheet
           ref={bottomSheetRef}
-          index={visible ? 0 : -1}
+          index={-1}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
-          enablePanDownToClose
           backdropComponent={renderBackdrop}
-          handleIndicatorStyle={styles.handle}
-          backgroundStyle={styles.drawerContent}
+          enablePanDownToClose
         >
-          <BottomSheetView style={styles.content}>
-            {/* Header - Always visible */}
+          <BottomSheetView style={styles.contentContainer}>
+            {/* Header */}
             <View style={styles.header}>
               <Text variant="titleLarge" style={styles.title}>
                 Filters
               </Text>
               {hasActiveFilters() && (
-                <Button 
-                  mode="text" 
-                  onPress={clearFilters}
-                  textColor={theme.colors.error}
-                >
+                <Button onPress={clearFilters} textColor={theme.colors.error}>
                   Clear All
                 </Button>
               )}
-            </View>
-
-            {/* Selected Filters - Always visible */}
-            <View style={styles.selectedFiltersContainer}>
-              {getFilterSummary() && getFilterSummary().map((filter) => {
-                if (filter === null || filter === undefined) return null
-                const filterType = categories.includes(filter.toLowerCase()) ? 'category' : roomTypes.includes(filter.toLowerCase()) ? 'room' : 'subcategory'
-                return (
-                  <Chip
-                    key={filter}
-                    style={styles.selectedFilterChip}
-                    onPress={() => handleFilterPress(filter, filterType)}
-                >
-                  <View style={styles.selectedFilterChipContent}>
-                    <Text>{filterType === 'category' ? CATEGORY_NAMES[filter as keyof typeof CATEGORY_NAMES] : filterType === 'room' ? filter.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join(' ') : filter.split(' ').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}</Text>
-                    <IconButton
-                      icon="close"
-                      size={16}
-                      onPress={() => handleFilterPress(filter, filterType)}
-                      style={styles.selectedFilterChipIcon}
-                    />
-                  </View>
-                </Chip>
-              )
-              })}
             </View>
 
             {/* Scrollable Content */}
@@ -145,55 +157,56 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollViewContent}
             >
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Category
-              </Text>
-              <View style={styles.chipContainer}>
-                {categories.map((cat) => (
-                  <Chip
-                    key={cat}
-                    selected={category === cat}
-                    onPress={() => handleFilterPress(cat, 'category')}
-                    style={styles.chip}
-                  >
-                    {CATEGORY_NAMES[cat as keyof typeof CATEGORY_NAMES]}
-                  </Chip>
-                ))}
-              </View>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Room
-              </Text>
-              <View style={styles.chipContainer}>
-                {roomTypes.map((room) => (
-                  <Chip
-                    key={room}
-                    selected={roomType === room}
-                    onPress={() => handleFilterPress(room, 'room')}
-                    style={styles.chip}
-                  >
-                    {room.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
-                  </Chip>
-                ))}
-              </View>
-
-              <Text variant="titleMedium" style={styles.sectionTitle}>
-                Furniture Type
-              </Text>
-              <View style={styles.chipContainer}>
-                {subcategories.map((sub) => (
-                  <Chip
-                    key={sub}
-                    selected={subcategory === sub}
-                    onPress={() => handleFilterPress(sub, 'subcategory')}
-                    style={styles.chip}
-                  >
-                    {sub.split(' ').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
-                  </Chip>
-                ))}
-              </View>
+              {/* Special Filters */}
+              {renderFilterSection(
+                'Special',
+                FILTER_CATEGORIES,
+                filterCategories,
+                handleFilterPress,
+                (filter) => FILTER_NAMES[filter]
+              )}
+              
+              <Divider style={styles.divider} />
+              
+              {/* Room Filters */}
+              {renderFilterSection(
+                'Room',
+                ROOM_TYPES,
+                selectedRooms,
+                handleRoomPress,
+                (room) => room.split('-').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')
+              )}
+              
+              <Divider style={styles.divider} />
+              
+              {/* Furniture Type Filters */}
+              {renderFilterSection(
+                'Furniture Type',
+                FURNITURE_TYPES,
+                selectedFurnitureTypes,
+                handleFurnitureTypePress,
+                (type) => type.split(' ').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')
+              )}
+              
+              <Divider style={styles.divider} />
+              
+              {/* Brand Filters */}
+              {renderFilterSection(
+                'Brand',
+                BRANDS,
+                selectedBrands,
+                handleBrandPress,
+                (brand) => brand.split('-').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')
+              )}
             </ScrollView>
 
-            {/* Footer - Always visible */}
+            {/* Footer */}
             <View style={styles.footer}>
               <Button
                 mode="contained"
@@ -211,96 +224,52 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
 }
 
 const styles = StyleSheet.create({
-  gestureRoot: {
+  container: {
     flex: 1,
   },
-  drawerContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  content: {
-    height: MAX_DRAWER_HEIGHT,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#DEDEDE',
-    borderRadius: 2,
-    alignSelf: 'center',
+  contentContainer: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   title: {
     fontWeight: '600',
-  },
-  selectedFilterChip: {
-    backgroundColor: '#DEDEDE',
-    color: 'white',
-  },
-  selectedFilterChipContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  selectedFiltersContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#DEDEDE',
-  },
-  selectedFilterChipIcon: {
-    padding: 0,
-    margin: 0,
-    height: 20,
-    width: 20,
   },
   scrollView: {
     flex: 1,
   },
   scrollViewContent: {
-    paddingBottom: 20,
+    padding: 16,
   },
   sectionTitle: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    marginBottom: 8,
     fontWeight: '500',
   },
   chipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
     gap: 8,
+    marginBottom: 16,
   },
   chip: {
     marginBottom: 8,
   },
+  divider: {
+    marginVertical: 8,
+  },
   footer: {
     padding: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#DEDEDE',
-    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
   },
   applyButton: {
-    marginBottom: 4,
+    width: '100%',
   },
 }); 

@@ -7,6 +7,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/navigation/types';
 import PhurnLogo from '@/assets/logos/phurn.svg';
 import { useProductFilter } from '@/providers/ProductFilterProvider';
+import { FilterCategory, NavigationType } from '@/stores/useProductFilterStore';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'HomeScreen'>;
 
@@ -14,67 +15,74 @@ interface Category {
   id: string;
   title: string;
   image: ImageSourcePropType;
+  type: 'navigation' | 'filter';
 }
 
 const categories: Category[] = [
   { 
     id: 'new', 
     title: 'New',
-    image: require('@/assets/images/categories/new-image.png')
+    image: require('@/assets/images/categories/new-image.png'),
+    type: 'filter'
   },
   { 
     id: 'clearance', 
     title: 'Best Deals', 
-    image: require('@/assets/images/categories/best-deals.jpeg')
+    image: require('@/assets/images/categories/best-deals.jpeg'),
+    type: 'filter'
   },
   { 
     id: 'type', 
     title: 'Shop By Type', 
-    image: require('@/assets/images/categories/shop-by-type.jpeg')
+    image: require('@/assets/images/categories/shop-by-type.jpeg'),
+    type: 'navigation'
   },
   { 
     id: 'room', 
     title: 'Shop By Room', 
-    image: require('@/assets/images/categories/shop-by-room.png')
+    image: require('@/assets/images/categories/shop-by-room.png'),
+    type: 'navigation'
   },
   { 
     id: 'brand',
     title: 'Shop By Brand', 
-    image: require('@/assets/images/categories/brand-img.jpeg')
-  },
+    image: require('@/assets/images/categories/brand-img.jpeg'),
+    type: 'navigation'
+  }
 ];
 
 export function HomeScreen({ navigation }: Props) {
-  const { setCategory, setSubcategory, clearFilters } = useProductFilter();
+  const { 
+    addFilterCategory, 
+    removeFilterCategory, 
+    setNavigationType,
+    clearAll 
+  } = useProductFilter();
 
-  const handleCategoryPress = (categoryId: string) => {
-    clearFilters(); // Clear any existing filters first
+  const handleCategoryPress = (categoryId: string, type: 'navigation' | 'filter') => {
+    clearAll(); // Clear all filters and navigation state
     
-    if (categoryId === 'new') {
-      setCategory('new');
+    if (type === 'filter') {
+      addFilterCategory(categoryId as FilterCategory);
       navigation.navigate('ProductList', {
         category: categoryId
       });
-    } else if (categoryId === 'clearance') {
-      setCategory('clearance');
-      navigation.navigate('ProductList', {
-        category: categoryId
-      });
-    } else if (categoryId === 'room') {
-      setCategory('room');
-      navigation.navigate('RoomList');
     } else {
-      setCategory(categoryId as 'type' | 'brand');
-      navigation.navigate('CategoryList', {
-        category: categoryId
-      });
+      setNavigationType(categoryId as NavigationType);
+      if (categoryId === 'room') {
+        navigation.navigate('RoomList');
+      } else {
+        navigation.navigate('CategoryList', {
+          category: categoryId
+        });
+      }
     }
   };
 
   return (
     <SafeAreaWrapper>
       <View style={styles.header}>
-        <PhurnLogo width={40} height={40} fill="#E85D3F" />
+        <PhurnLogo width={40} height={40} />
         <Text style={styles.headerText}>
           PHURN
         </Text>
@@ -86,7 +94,7 @@ export function HomeScreen({ navigation }: Props) {
             key={category.id}
             title={category.title}
             image={category.image}
-            onPress={() => handleCategoryPress(category.id)}
+            onPress={() => handleCategoryPress(category.id, category.type)}
           />
         ))}
       </ScrollView>
@@ -100,16 +108,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     gap: 8,
   },
   headerText: {
-    textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#E85D3F',
+    color: '#ea3a00',
+    textAlign: 'center',
   },
 });

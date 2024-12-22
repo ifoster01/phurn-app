@@ -12,7 +12,7 @@ import { RoomType } from '@/stores/useProductFilterStore';
 type Props = NativeStackScreenProps<HomeStackParamList, 'RoomList'>;
 
 interface Category {
-  id: string;
+  id: RoomType;
   title: string;
   image: ImageSourcePropType;
 }
@@ -41,11 +41,11 @@ const roomCategories: Category[] = [
 ];
 
 export function RoomListScreen({ navigation }: Props) {
-  const { setSubcategory, setRoomType } = useProductFilter();
+  const { addRoom, clearFilters } = useProductFilter();
 
-  const handleRoomPress = (roomId: string) => {
-    setRoomType(roomId as RoomType);
-    setSubcategory(roomId);
+  const handleRoomPress = (roomId: RoomType) => {
+    clearFilters(); // Clear existing filters
+    addRoom(roomId); // Add the selected room
     navigation.navigate('CategoryList', {
       category: 'room',
       subcategory: roomId
