@@ -3,6 +3,7 @@ import { TabNavigator } from './TabNavigator';
 import { WishListsScreen } from '@/screens/WishListsScreen';
 import { SignupScreen } from '@/screens/auth/SignupScreen';
 import { WishListDetailScreen } from '@/screens/WishListDetailScreen';
+import { WishlistProductScreen } from '@/screens/WishlistProductScreen';
 import { RootStackParamList } from './types';
 import { useAuth } from '@/providers/AuthProvider';
 
@@ -42,6 +43,14 @@ export function AppNavigator() {
           options={{
             headerShown: false,
             title: 'Wish List',
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen 
+          name="WishlistProduct" 
+          component={WishlistProductScreen}
+          options={{
+            headerShown: false,
             presentation: 'card',
           }}
         />

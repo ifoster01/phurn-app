@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
+import type { Database } from '@/types/supabase';
 
 export interface Wishlist {
   id: string;
@@ -15,14 +16,7 @@ export interface WishlistItem {
   furniture_id: string;
   user_id: string;
   created_at: string;
-  furniture: {
-    id: string;
-    name: string;
-    img_src_url: string;
-    current_price: number;
-    regular_price: number;
-    brand: string;
-  };
+  furniture: Database['public']['Tables']['furniture']['Row'];
 }
 
 export function useWishlists() {
@@ -43,7 +37,7 @@ export function useWishlists() {
 
       if (wishlistError) throw wishlistError;
 
-      // Then get all wishlist items with furniture details
+      // Then get all wishlist items with complete furniture details
       const { data: wishlistItems, error: itemsError } = await supabase
         .from('user_wishlist')
         .select(`
@@ -54,7 +48,18 @@ export function useWishlists() {
             img_src_url,
             current_price,
             regular_price,
-            brand
+            brand,
+            navigate_url,
+            description,
+            discount_percent,
+            material,
+            sku,
+            style_type,
+            room_type,
+            furniture_type,
+            new_product,
+            on_clearance,
+            created_at
           )
         `)
         .eq('user_id', user.id);

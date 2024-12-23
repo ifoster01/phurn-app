@@ -4,18 +4,37 @@ import { CompositeNavigationProp, RouteProp, CompositeScreenProps } from '@react
 import type { Furniture } from '@/hooks/api/useFurniture';
 
 export type TabParamList = {
-  Home: undefined;
+  Home: {
+    screen?: keyof HomeStackParamList;
+    params?: {
+      furniture?: Furniture;
+    };
+  };
   Profile: undefined;
-  Wishlists: undefined;
+  Wishlists: {
+    screen?: 'Product';
+    params?: {
+      furniture?: Furniture;
+    };
+  };
   Settings: undefined;
 };
 
 export type RootStackParamList = {
   Tabs: {
     screen?: keyof TabParamList;
+    params?: {
+      screen?: keyof HomeStackParamList;
+      params?: {
+        furniture?: Furniture;
+      };
+    };
   };
   WishListDetail: {
     wishlistId: string;
+  };
+  WishlistProduct: {
+    furniture: Furniture;
   };
   ProductList: {
     category: string;

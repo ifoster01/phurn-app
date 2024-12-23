@@ -62,7 +62,7 @@ function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }:
         {thumbnails.map((url, index) => (
           <Image
             key={index}
-            source={{ uri: url }}
+            source={{ uri: url ?? '' }}
             style={styles.thumbnail}
             resizeMode="cover"
           />

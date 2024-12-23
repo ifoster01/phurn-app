@@ -8,6 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
 import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
+import { Database } from '@/types/supabase';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'WishListDetail'>;
 
@@ -27,10 +28,18 @@ export function WishListDetailScreen({ navigation, route }: Props) {
     setSelectedFurnitureId(furnitureId);
   };
 
+  const handleProductPress = (furniture: Database['public']['Tables']['furniture']['Row']) => {
+    const mappedFurniture = {
+      ...furniture,
+      discount_percentage: furniture.discount_percent ?? 0,
+    };
+
+    navigation.navigate('WishlistProduct', { furniture: mappedFurniture });
+  };
+
   const isInWishlist = (furnitureId: string): boolean => {
     if (!user || !wishlistData?.groupedItems) return false;
     
-    // Check if the furniture exists in any wishlist
     return Object.values(wishlistData.groupedItems).some(wishlist => 
       wishlist.items.some(item => item.furniture_id === furnitureId)
     );
@@ -77,7 +86,7 @@ export function WishListDetailScreen({ navigation, route }: Props) {
             image={item.furniture.img_src_url || ''}
             isFavorite={isInWishlist(item.furniture_id)}
             regPrice={item.furniture.regular_price || 0}
-            onPress={() => {}}
+            onPress={() => handleProductPress(item.furniture)}
             onFavoritePress={() => handleFavoritePress(item.furniture_id)}
           />
         )}

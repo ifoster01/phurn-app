@@ -4,22 +4,19 @@ import { Button, Text, useTheme, IconButton, Surface } from 'react-native-paper'
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { Image } from 'expo-image';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { HomeStackParamList, RootStackParamList } from '@/navigation/types';
+import { RootStackParamList } from '@/navigation/types';
 import { useAuth } from '@/providers/AuthProvider';
 import { useWishlists } from '@/hooks/api/useWishlists';
 import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
-import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
-type Props = NativeStackScreenProps<
-  HomeStackParamList & RootStackParamList,
-  'Product'
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'WishlistProduct'>;
 
-export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
+export function WishlistProductScreen({ navigation, route }: Props): React.JSX.Element {
   const { furniture } = route.params;
   const theme = useTheme();
   const { user } = useAuth();
@@ -39,13 +36,13 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
   const handleShare = useCallback(async () => {
     const url = furniture.navigate_url;
     try {
-        await Share.share({
-          message: `Check out this product: ${furniture.name}\n${url}`,
-          url: url ?? undefined,
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
+      await Share.share({
+        message: `Check out this product: ${furniture.name}\n${url}`,
+        url: url ?? undefined,
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   }, [furniture.name, furniture.navigate_url]);
 
   const handleToggleFavorite = useCallback(() => {
@@ -106,29 +103,24 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
         </View>
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Product Image */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <Image
           source={{ uri: furniture.img_src_url }}
           style={styles.image}
           contentFit="cover"
         />
 
-        {/* Product Info */}
         <Surface style={styles.infoContainer} elevation={0}>
           <Animated.View entering={FadeInDown.delay(200).springify()}>
             <Text style={styles.brand}>{furniture.brand}</Text>
-            <Text style={styles.title}>{furniture.name?.replace('\\', '"')}</Text>
+            <Text style={styles.title}>{furniture.name}</Text>
             
             <View style={styles.priceContainer}>
               <Text style={{
                 ...styles.price,
                 color: furniture.current_price && furniture.current_price < (furniture.regular_price ?? 0) ? theme.colors.error : theme.colors.onSurface,
               }}>
-                {furniture.current_price ? furniture.current_price.toLocaleString("en-US", {currency: "USD", style: "currency"}) : 'N/A'}
+                {furniture.current_price?.toLocaleString("en-US", {currency: "USD", style: "currency"})}
               </Text>
               {furniture.current_price && furniture.current_price < (furniture.regular_price ?? 0) && furniture.regular_price && (
                 <Text style={styles.regPrice}>
@@ -143,8 +135,7 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
             </View>
           </Animated.View>
 
-          {/* Description */}
-          {cleanDescription && (
+          {furniture.description && (
             <Animated.View
               entering={FadeInDown.delay(400).springify()}
               style={styles.descriptionContainer}
@@ -156,7 +147,6 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
         </Surface>
       </ScrollView>
 
-      {/* Bottom Action Button */}
       <Animated.View
         entering={FadeInRight.delay(600).springify()}
         style={styles.bottomButton}
@@ -217,14 +207,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    shadowColor: 'transparent',
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    elevation: 0,
   },
   brand: {
     fontSize: 16,
@@ -282,13 +264,11 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     backgroundColor: 'white',
-    borderTopWidth: 0,
   },
   buyButton: {
     borderRadius: 12,
-    elevation: 0,
   },
   buyButtonContent: {
     paddingVertical: 8,
   },
-});
+}); 
