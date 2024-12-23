@@ -101,10 +101,10 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
       regPrice={item.regular_price || 0}
       image={item.img_src_url || ''}
       isFavorite={isInWishlist(item.id)}
-      onPress={() => {}}
+      onPress={() => navigation.navigate('Product', { furniture: item })}
       onFavoritePress={() => handleFavoritePress(item.id)}
     />
-  ), [isInWishlist, handleFavoritePress]);
+  ), [isInWishlist, handleFavoritePress, navigation]);
 
   const renderHeader = () => {
     if (!searchQuery) return null;

@@ -1,6 +1,7 @@
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeNavigationProp, RouteProp, CompositeScreenProps } from '@react-navigation/native';
+import type { Furniture } from '@/hooks/api/useFurniture';
 
 export type TabParamList = {
   Home: undefined;
@@ -37,6 +38,7 @@ export type HomeStackParamList = {
   CategoryList: { category: string; subcategory?: string };
   ProductList: { category?: string; subcategory?: string; searchQuery?: string };
   RoomList: undefined;
+  Product: { furniture: Furniture };
 };
 
 export type NavigationProps<T extends keyof RootStackParamList> = {

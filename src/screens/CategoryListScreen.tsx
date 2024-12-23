@@ -45,7 +45,7 @@ export function CategoryListScreen({ navigation, route }: Props) {
       if (subcategory) {
         // If we're in a room subcategory, add both room and furniture type filters
         addRoom(subcategory as RoomType);
-        if (itemId === 'all-furniture') {
+        if (itemId === 'all furniture') {
           for (const furnitureType of selectedFurnitureTypes) {
             removeFurnitureType(furnitureType as FurnitureType);
           }
