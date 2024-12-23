@@ -185,6 +185,8 @@ export function WishListsScreen() {
             mode="contained" 
             style={styles.retryButton}
             onPress={() => refetch()}
+            buttonColor="#EA3A00"
+            textColor="white"
           >
             Retry
           </Button>

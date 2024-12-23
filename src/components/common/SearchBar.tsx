@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, TextInput, StyleSheet, Keyboard, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { IconButton, useTheme } from 'react-native-paper';
+import { IconButton } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '@/navigation/types';
@@ -17,7 +17,6 @@ export function SearchBar({ onSearch, initialValue }: SearchBarProps): React.JSX
   const [searchQuery, setSearchQuery] = useState(initialValue ?? '');
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute();
-  const theme = useTheme();
 
   const handleSearch = useCallback((): void => {
     const trimmedQuery = searchQuery.trim();
@@ -50,17 +49,17 @@ export function SearchBar({ onSearch, initialValue }: SearchBarProps): React.JSX
 
   return (
     <Pressable style={styles.container}>
-      <View style={[styles.searchContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
+      <View style={styles.searchContainer}>
         <Ionicons 
           name="search" 
           size={20} 
-          color={theme.colors.onSurfaceVariant} 
+          color="#666666"
           style={styles.icon} 
         />
         <TextInput
           placeholder="Search products"
-          placeholderTextColor={theme.colors.onSurfaceVariant}
-          style={[styles.input, { color: theme.colors.onSurface }]}
+          placeholderTextColor="#666666"
+          style={styles.input}
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
@@ -75,7 +74,8 @@ export function SearchBar({ onSearch, initialValue }: SearchBarProps): React.JSX
             size={20}
             onPress={handleClear}
             style={styles.clearButton}
-            iconColor={theme.colors.onSurfaceVariant}
+            iconColor="#666666"
+            theme={{ colors: { onSurfaceVariant: '#666666' } }}
           />
         )}
         {searchQuery.length > 0 && (
@@ -84,7 +84,8 @@ export function SearchBar({ onSearch, initialValue }: SearchBarProps): React.JSX
             size={24}
             onPress={handleSearch}
             style={styles.searchButton}
-            iconColor={theme.colors.primary}
+            iconColor="#EA3A00"
+            theme={{ colors: { onSurfaceVariant: '#EA3A00' } }}
           />
         )}
       </View>
@@ -103,6 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 44,
+    backgroundColor: '#F5F5F5',
   },
   icon: {
     marginRight: 8,
@@ -112,6 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     height: '100%',
     paddingVertical: 8,
+    color: '#000000',
   },
   clearButton: {
     margin: 0,

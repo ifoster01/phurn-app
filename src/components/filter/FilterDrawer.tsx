@@ -133,11 +133,18 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
           <Chip
             key={item}
             selected={selectedItems.includes(item)}
+            selectedColor="#EF5350"
             onPress={() => onPress(item)}
             style={[
               styles.chip,
-              selectedItems.includes(item) && styles.selectedChip
+              selectedItems.includes(item) && styles.selectedChip,
+              {
+                borderColor: selectedItems.includes(item) ? '#EF5350' : '#666666',
+              }
             ]}
+            textStyle={{
+              color: selectedItems.includes(item) ? '#EF5350' : '#666666',
+            }}
             mode="outlined"
           >
             {formatLabel ? formatLabel(item) : item}
@@ -163,7 +170,10 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
           position="trailing"
           labelStyle={[
             styles.radioLabel,
-            isSelected && styles.selectedRadioLabel
+            isSelected && styles.selectedRadioLabel,
+            {
+              color: isSelected ? '#EF5350' : '#666666',
+            }
           ]}
           style={styles.radioButton}
         />
@@ -344,6 +354,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   chip: {
+    color: '#666666',
     marginBottom: 8,
   },
   selectedChip: {

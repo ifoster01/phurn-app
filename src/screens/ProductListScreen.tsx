@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { Appbar, IconButton, Text, Button, useTheme, Chip } from 'react-native-paper';
+import { View, FlatList, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { Appbar, IconButton, Text, Button, useTheme, Chip, Icon } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -112,8 +112,10 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
       <View style={styles.searchInfo}>
         <Chip
           icon="magnify"
+          closeIcon={() => <Icon source="close" size={16} color="#666666" />}
           onClose={() => navigation.setParams({ searchQuery: undefined })}
           style={styles.searchChip}
+          textStyle={{ color: '#666666' }}
         >
           {searchQuery}
         </Chip>
@@ -158,7 +160,7 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
       <Appbar.Header style={styles.header}>
         <Appbar.BackAction onPress={navigation.goBack} />
         <Appbar.Content title={getScreenTitle()} />
-        <Appbar.Action icon="tune-variant" onPress={showFilterDrawer} />
+        <Appbar.Action iconColor='#666666' icon="tune-variant" onPress={showFilterDrawer} />
       </Appbar.Header>
       
       <SearchBar initialValue={searchQuery} />
@@ -198,6 +200,14 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
           ListFooterComponent={renderFooter}
           refreshing={isRefetching}
           onRefresh={refetch}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              colors={['#EA3A00']}
+              tintColor="#EA3A00"
+            />
+          }
         />
       )}
 

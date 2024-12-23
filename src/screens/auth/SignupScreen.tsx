@@ -124,6 +124,16 @@ export function SignupScreen({ navigation }: Props) {
           mode="outlined"
           style={styles.input}
           autoCapitalize="words"
+          outlineColor="#CCCCCC"
+          activeOutlineColor="#EA3A00"
+          textColor="#000000"
+          theme={{
+            colors: {
+              background: '#FFFFFF',
+              placeholder: '#666666',
+              onSurfaceVariant: '#666666',
+            }
+          }}
         />
         <TextInput
           label="Email"
@@ -134,6 +144,16 @@ export function SignupScreen({ navigation }: Props) {
           keyboardType="email-address"
           autoCapitalize="none"
           autoComplete="email"
+          outlineColor="#CCCCCC"
+          activeOutlineColor="#EA3A00"
+          textColor="#000000"
+          theme={{
+            colors: {
+              background: '#FFFFFF',
+              placeholder: '#666666',
+              onSurfaceVariant: '#666666',
+            }
+          }}
         />
         <View>
           <TextInput
@@ -144,10 +164,21 @@ export function SignupScreen({ navigation }: Props) {
             style={styles.input}
             secureTextEntry={!showPassword}
             autoComplete="password-new"
+            outlineColor="#CCCCCC"
+            activeOutlineColor="#EA3A00"
+            textColor="#000000"
+            theme={{
+              colors: {
+                background: '#FFFFFF',
+                placeholder: '#666666',
+                onSurfaceVariant: '#666666',
+              }
+            }}
             right={
               <TextInput.Icon
                 icon={showPassword ? "eye-off" : "eye"}
                 onPress={() => setShowPassword(!showPassword)}
+                color="#666666"
               />
             }
           />
@@ -178,10 +209,21 @@ export function SignupScreen({ navigation }: Props) {
           style={styles.input}
           secureTextEntry={!showConfirmPassword}
           autoComplete="password-new"
+          outlineColor="#CCCCCC"
+          activeOutlineColor="#EA3A00"
+          textColor="#000000"
+          theme={{
+            colors: {
+              background: '#FFFFFF',
+              placeholder: '#666666',
+              onSurfaceVariant: '#666666',
+            }
+          }}
           right={
             <TextInput.Icon
               icon={showConfirmPassword ? "eye-off" : "eye"}
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              color="#666666"
             />
           }
         />

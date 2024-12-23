@@ -5,7 +5,7 @@ import { styles } from './styles';
 export function LoadingSpinner() {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color="#666666" />
     </View>
   );
 }

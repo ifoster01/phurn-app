@@ -128,7 +128,7 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
             <View style={styles.priceContainer}>
               <Text style={{
                 ...styles.price,
-                color: furniture.current_price && furniture.current_price < (furniture.regular_price ?? 0) ? theme.colors.error : theme.colors.onSurface,
+                color: furniture.current_price && furniture.current_price < (furniture.regular_price ?? 0) ? '#EF5350' : theme.colors.onSurface,
               }}>
                 {furniture.current_price ? furniture.current_price.toLocaleString("en-US", {currency: "USD", style: "currency"}) : 'N/A'}
               </Text>
@@ -138,7 +138,7 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
                 </Text>
               )}
               {discountPercentage > 0 && (
-                <View style={[styles.discountBadge, { backgroundColor: theme.colors.error }]}>
+                <View style={[styles.discountBadge, { backgroundColor: '#EF5350' }]}>
                   <Text style={styles.discountText}>-{discountPercentage}%</Text>
                 </View>
               )}

@@ -24,6 +24,7 @@ export const AppleButton = () => {
             icon="apple"
             style={styles.button}
             textColor={theme.dark ? 'white' : 'black'}
+            labelStyle={{ color: '#000000' }}
         >
             Continue with Apple
         </Button>

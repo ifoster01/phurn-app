@@ -24,10 +24,7 @@ export function AuthPromptModal({ visible, onDismiss }: Props) {
       <Modal
         visible={visible}
         onDismiss={onDismiss}
-        contentContainerStyle={[
-          styles.container,
-          { backgroundColor: theme.colors.background }
-        ]}
+        contentContainerStyle={styles.container}
       >
         <Text variant="headlineMedium" style={styles.title}>
           Oops! In order to save to a Wish List,
@@ -76,6 +73,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: '30%',
     marginBottom: 'auto',
+    backgroundColor: '#FFFFFF',
   },
   title: {
     textAlign: 'center',

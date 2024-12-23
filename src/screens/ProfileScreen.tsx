@@ -88,6 +88,16 @@ export function ProfileScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            outlineColor="#CCCCCC"
+            activeOutlineColor="#EA3A00"
+            textColor="#000000"
+            theme={{
+              colors: {
+                background: '#FFFFFF',
+                placeholder: '#666666',
+                onSurfaceVariant: '#666666',
+              }
+            }}
           />
           
           <TextInput
@@ -98,10 +108,21 @@ export function ProfileScreen() {
             style={styles.input}
             secureTextEntry={!showPassword}
             autoComplete="password"
+            outlineColor="#CCCCCC"
+            activeOutlineColor="#EA3A00"
+            textColor="#000000"
+            theme={{
+              colors: {
+                background: '#FFFFFF',
+                placeholder: '#666666',
+                onSurfaceVariant: '#666666',
+              }
+            }}
             right={
               <TextInput.Icon
                 icon={showPassword ? "eye-off" : "eye"}
                 onPress={() => setShowPassword(!showPassword)}
+                color="#666666"
               />
             }
           />
