@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/providers/AuthProvider';
+import { AuthPromptModal } from '@/components/auth/AuthPromptModal';
 
 interface Props {
   title: string;
@@ -26,30 +28,48 @@ export function ProductCard({
   onFavoritePress,
   isFavorite,
 }: Props) {
+  const { user } = useAuth();
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+
+  const handleFavoritePress = () => {
+    if (!user) {
+      setShowAuthPrompt(true);
+      return;
+    }
+    onFavoritePress();
+  };
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
-        <TouchableOpacity style={styles.favoriteButton} onPress={onFavoritePress}>
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
-            size={24}
-            color={isFavorite ? '#E85D3F' : '#666'}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.details}>
-        <Text style={styles.brand}>{brand}</Text>
-        <Text style={styles.title} numberOfLines={2}>{title.replace('\\', '"')}</Text>
-        <View style={styles.priceContainer}>
-          <Text style={{
-            ...styles.price,
-            color: price < regPrice ? '#EF5350' : '#333',
-          }}>{price.toLocaleString("en-US", {currency: "USD", style: "currency"})}</Text>
-          { price < regPrice && <Text style={styles.regPrice}>${regPrice}</Text> }
+    <>
+      <TouchableOpacity style={styles.container} onPress={onPress}>
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
+          <TouchableOpacity style={styles.favoriteButton} onPress={handleFavoritePress}>
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isFavorite ? '#E85D3F' : '#666'}
+            />
+          </TouchableOpacity>
         </View>
-      </View>
-    </TouchableOpacity>
+        <View style={styles.details}>
+          <Text style={styles.brand}>{brand}</Text>
+          <Text style={styles.title} numberOfLines={2}>{title.replace('\\', '"')}</Text>
+          <View style={styles.priceContainer}>
+            <Text style={{
+              ...styles.price,
+              color: price < regPrice ? '#EF5350' : '#333',
+            }}>{price.toLocaleString("en-US", {currency: "USD", style: "currency"})}</Text>
+            { price < regPrice && <Text style={styles.regPrice}>${regPrice}</Text> }
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      <AuthPromptModal
+        visible={showAuthPrompt}
+        onDismiss={() => setShowAuthPrompt(false)}
+      />
+    </>
   );
 }
 

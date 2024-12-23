@@ -140,20 +140,27 @@ export function WishListsScreen() {
   if (!user) {
     return (
       <SafeAreaWrapper>
-        <View style={styles.container}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Wishlists
-          </Text>
-          <Text style={styles.subtitle}>
-            Sign in to create and manage your wishlists
-          </Text>
-          <Button
-            mode="contained"
-            onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })}
-            style={styles.signInButton}
-          >
-            Sign In
-          </Button>
+        <View style={[styles.container, styles.unauthContainer]}>
+          <View style={styles.unauthContent}>
+            <Text variant="headlineLarge" style={styles.unauthTitle}>
+              Wish Lists
+            </Text>
+            <Text variant="titleMedium" style={styles.unauthSubtitle}>
+              Create and manage your favorite furniture finds
+            </Text>
+            <Text style={styles.unauthDescription}>
+              Sign in to start saving items to your wish lists and keep track of your dream furniture pieces
+            </Text>
+            <Button
+              mode="contained"
+              onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })}
+              style={styles.signInButton}
+              contentStyle={styles.signInButtonContent}
+              labelStyle={styles.signInButtonLabel}
+            >
+              Sign In or Create Account
+            </Button>
+          </View>
         </View>
       </SafeAreaWrapper>
     );
@@ -319,9 +326,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
   },
-  signInButton: {
-    marginTop: 16,
-  },
   retryButton: {
     marginTop: 16,
   },
@@ -329,5 +333,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  unauthContainer: {
+    backgroundColor: 'white',
+    justifyContent: 'center',
+  },
+  unauthContent: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  unauthTitle: {
+    color: '#E85D3F',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  unauthSubtitle: {
+    color: '#333',
+    marginBottom: 12,
+    textAlign: 'center',
+    fontSize: 20,
+  },
+  unauthDescription: {
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 22,
+  },
+  signInButton: {
+    width: '100%',
+    borderRadius: 100,
+    backgroundColor: '#E85D3F',
+  },
+  signInButtonContent: {
+    paddingVertical: 8,
+  },
+  signInButtonLabel: {
+    fontSize: 18,
+    fontWeight: '600',
   },
 });

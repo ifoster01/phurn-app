@@ -11,6 +11,7 @@ import { AddToWishlistDrawer } from '@/components/wishlist/AddToWishlistDrawer';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { AuthPromptModal } from '@/components/auth/AuthPromptModal';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +23,7 @@ export function WishlistProductScreen({ navigation, route }: Props): React.JSX.E
   const { user } = useAuth();
   const { data: wishlistData } = useWishlists();
   const [showWishlistDrawer, setShowWishlistDrawer] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(() => {
     if (!user || !wishlistData?.groupedItems) return false;
     return Object.values(wishlistData.groupedItems).some(wishlist => 
@@ -47,12 +49,12 @@ export function WishlistProductScreen({ navigation, route }: Props): React.JSX.E
 
   const handleToggleFavorite = useCallback(() => {
     if (!user) {
-      navigation.navigate('Tabs', { screen: 'Profile' });
+      setShowAuthPrompt(true);
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowWishlistDrawer(true);
-  }, [user, navigation]);
+  }, [user]);
 
   const handleBuyNow = useCallback(async () => {
     const url = furniture.navigate_url;
@@ -165,6 +167,11 @@ export function WishlistProductScreen({ navigation, route }: Props): React.JSX.E
         visible={showWishlistDrawer}
         onDismiss={() => setShowWishlistDrawer(false)}
         furnitureId={furniture.id}
+      />
+
+      <AuthPromptModal
+        visible={showAuthPrompt}
+        onDismiss={() => setShowAuthPrompt(false)}
       />
     </View>
   );
