@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Modal, Portal, Text, Button, TextInput, useTheme, HelperText } from 'react-native-paper';
 import { useCreateWishlist } from '@/hooks/api/useWishlists';
+import { useForm, Controller } from 'react-hook-form';
 
 interface Props {
   visible: boolean;
@@ -9,32 +10,32 @@ interface Props {
   onCreateSuccess: () => void;
 }
 
+interface FormData {
+  name: string;
+}
+
 export function CreateWishlistModal({ visible, onDismiss, onCreateSuccess }: Props) {
   const theme = useTheme();
-  const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const createWishlist = useCreateWishlist();
+  
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
+    defaultValues: {
+      name: ''
+    }
+  });
 
-  const handleCreate = async () => {
-    if (!name.trim()) return;
-    setError(null);
-
+  const onSubmit = async (data: FormData) => {
     try {
-      await createWishlist.mutateAsync({ name: name.trim() });
-      setName('');
+      await createWishlist.mutateAsync({ name: data.name.trim() });
+      reset();
       onCreateSuccess();
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
-      }
+      // Error will be handled by form state
     }
   };
 
   const handleDismiss = () => {
-    setName('');
-    setError(null);
+    reset();
     onDismiss();
   };
 
@@ -52,31 +53,45 @@ export function CreateWishlistModal({ visible, onDismiss, onCreateSuccess }: Pro
           Create New Wishlist
         </Text>
 
-        <TextInput
-          label="Wishlist Name"
-          value={name}
-          onChangeText={(text) => {
-            setName(text);
-            setError(null);
+        <Controller
+          control={control}
+          name="name"
+          rules={{
+            required: 'Name is required',
+            validate: value => value.trim().length > 0 || 'Name cannot be empty'
           }}
-          mode="outlined"
-          style={styles.input}
-          autoFocus
-          error={!!error}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Wishlist Name"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              mode="outlined"
+              style={styles.input}
+              error={!!errors.name}
+              disabled={createWishlist.isPending}
+            />
+          )}
         />
         
-        {error && (
-          <HelperText type="error" visible={!!error}>
-            {error}
+        {errors.name && (
+          <HelperText type="error" visible={true}>
+            {errors.name.message}
+          </HelperText>
+        )}
+
+        {createWishlist.error && (
+          <HelperText type="error" visible={true}>
+            {createWishlist.error instanceof Error ? createWishlist.error.message : 'An unexpected error occurred'}
           </HelperText>
         )}
 
         <View style={styles.buttonContainer}>
           <Button
             mode="contained"
-            onPress={handleCreate}
+            onPress={handleSubmit(onSubmit)}
             loading={createWishlist.isPending}
-            disabled={!name.trim() || createWishlist.isPending}
+            disabled={createWishlist.isPending}
             style={styles.button}
           >
             Create
@@ -100,6 +115,8 @@ const styles = StyleSheet.create({
     margin: 20,
     borderRadius: 8,
     padding: 20,
+    marginTop: '30%',
+    marginBottom: 'auto',
   },
   title: {
     marginBottom: 20,

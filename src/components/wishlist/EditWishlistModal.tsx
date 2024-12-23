@@ -1,18 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Portal, Modal, TextInput, Button, Text } from 'react-native-paper';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useForm, Controller } from 'react-hook-form';
+
 interface Props {
   visible: boolean;
   onDismiss: () => void;
   wishlistId: string;
   currentName: string;
 }
+
+interface FormData {
+  name: string;
+}
+
 export function EditWishlistModal({ visible, onDismiss, wishlistId, currentName }: Props) {
-  const [name, setName] = useState(currentName);
-  const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { control, handleSubmit, formState: { errors, isDirty }, reset } = useForm<FormData>({
+    defaultValues: {
+      name: currentName
+    }
+  });
+
   const updateWishlist = useMutation({
     mutationFn: async (newName: string) => {
       const { error } = await supabase
@@ -24,30 +35,28 @@ export function EditWishlistModal({ visible, onDismiss, wishlistId, currentName 
     },
     onSuccess: (newName) => {
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      reset({ name: newName });
       onDismiss();
     },
     onError: (error: Error) => {
-      setError(error.message);
+      // Error will be handled by form state
     },
   });
-  const handleSave = () => {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      setError('Name cannot be empty');
-      return;
-    }
+
+  const onSubmit = (data: FormData) => {
+    const trimmedName = data.name.trim();
     if (trimmedName === currentName) {
       onDismiss();
       return;
     }
-    setError(null);
     updateWishlist.mutate(trimmedName);
   };
+
   const handleDismiss = () => {
-    setError(null);
-    setName(currentName);
+    reset({ name: currentName });
     onDismiss();
   };
+
   return (
     <Portal>
       <Modal
@@ -57,28 +66,45 @@ export function EditWishlistModal({ visible, onDismiss, wishlistId, currentName 
       >
         <Text variant="titleLarge" style={styles.title}>Edit Wishlist Name</Text>
         
-        {error && (
-          <Text style={styles.error}>{error}</Text>
-        )}
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          mode="outlined"
-          label="Wishlist Name"
-          style={styles.input}
-          autoFocus
-          error={!!error}
-          disabled={updateWishlist.isPending}
+        <Controller
+          control={control}
+          name="name"
+          rules={{
+            required: 'Name is required',
+            validate: value => value.trim().length > 0 || 'Name cannot be empty'
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              mode="outlined"
+              label="Wishlist Name"
+              style={styles.input}
+              error={!!errors.name}
+              disabled={updateWishlist.isPending}
+            />
+          )}
         />
+        
+        {errors.name && (
+          <Text style={styles.error}>{errors.name.message}</Text>
+        )}
+        
+        {updateWishlist.error && (
+          <Text style={styles.error}>{updateWishlist.error.message}</Text>
+        )}
+
         <Button
           mode="contained"
-          onPress={handleSave}
+          onPress={handleSubmit(onSubmit)}
           style={styles.saveButton}
           loading={updateWishlist.isPending}
-          disabled={updateWishlist.isPending || !name.trim() || name.trim() === currentName}
+          disabled={updateWishlist.isPending || !isDirty}
         >
           Save
         </Button>
+        
         <Button
           mode="outlined"
           onPress={handleDismiss}
@@ -91,12 +117,15 @@ export function EditWishlistModal({ visible, onDismiss, wishlistId, currentName 
     </Portal>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     padding: 20,
     margin: 20,
     borderRadius: 8,
+    marginTop: '30%',
+    marginBottom: 'auto',
   },
   title: {
     marginBottom: 16,
