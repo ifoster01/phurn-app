@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Portal, Text, Button, useTheme, Chip, Divider, RadioButton, TextInput } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
@@ -336,95 +336,97 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
           handleIndicatorStyle={styles.handleIndicator}
           topInset={insets.top}
         >
-          <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
-            {/* Header */}
-            <View style={styles.header}>
-              <Text variant="titleLarge" style={styles.title}>
-                Filters & Sorting
-              </Text>
-              {(hasActiveFilters() || priceSort !== 'none' || discountSort !== 'none' || minPrice !== null || maxPrice !== null) && (
-                <Button onPress={handleClearAll} textColor={theme.colors.error}>
-                  Clear All
-                </Button>
-              )}
-            </View>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
+              {/* Header */}
+              <View style={styles.header}>
+                <Text variant="titleLarge" style={styles.title}>
+                  Filters & Sorting
+                </Text>
+                {(hasActiveFilters() || priceSort !== 'none' || discountSort !== 'none' || minPrice !== null || maxPrice !== null) && (
+                  <Button onPress={handleClearAll} textColor={theme.colors.error}>
+                    Clear All
+                  </Button>
+                )}
+              </View>
 
-            {/* Scrollable Content */}
-            <ScrollView 
-              style={styles.scrollView} 
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollViewContent}
-            >
-              {/* Sorting Section */}
-              {renderSortingSection()}
-              
-              <Divider style={styles.divider} />
-
-              {/* Price Range Section */}
-              {renderPriceRangeSection()}
-              
-              <Divider style={styles.divider} />
-
-              {/* Special Filters */}
-              {renderFilterSection(
-                'Special',
-                FILTER_CATEGORIES,
-                filterCategories,
-                handleFilterPress,
-                (filter) => FILTER_NAMES[filter]
-              )}
-              
-              <Divider style={styles.divider} />
-              
-              {/* Room Filters */}
-              {renderFilterSection(
-                'Room',
-                ROOM_TYPES,
-                selectedRooms,
-                handleRoomPress,
-                (room) => room.split('-').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
-              
-              <Divider style={styles.divider} />
-
-              {/* Brand Filters */}
-              {renderFilterSection(
-                'Brand',
-                BRANDS,
-                selectedBrands,
-                handleBrandPress,
-                (brand) => brand.split('-').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
-              
-              <Divider style={styles.divider} />
-              
-              {/* Furniture Type Filters */}
-              {renderFilterSection(
-                'Furniture Type',
-                FURNITURE_TYPES,
-                selectedFurnitureTypes,
-                handleFurnitureTypePress,
-                (type) => type.split(' ').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
-            </ScrollView>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <Button
-                mode="contained"
-                onPress={handleApply}
-                style={styles.applyButton}
+              {/* Scrollable Content */}
+              <ScrollView 
+                style={styles.scrollView} 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollViewContent}
               >
-                Apply
-              </Button>
-            </View>
-          </BottomSheetView>
+                {/* Sorting Section */}
+                {renderSortingSection()}
+                
+                <Divider style={styles.divider} />
+
+                {/* Price Range Section */}
+                {renderPriceRangeSection()}
+                
+                <Divider style={styles.divider} />
+
+                {/* Special Filters */}
+                {renderFilterSection(
+                  'Special',
+                  FILTER_CATEGORIES,
+                  filterCategories,
+                  handleFilterPress,
+                  (filter) => FILTER_NAMES[filter]
+                )}
+                
+                <Divider style={styles.divider} />
+                
+                {/* Room Filters */}
+                {renderFilterSection(
+                  'Room',
+                  ROOM_TYPES,
+                  selectedRooms,
+                  handleRoomPress,
+                  (room) => room.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
+                
+                <Divider style={styles.divider} />
+
+                {/* Brand Filters */}
+                {renderFilterSection(
+                  'Brand',
+                  BRANDS,
+                  selectedBrands,
+                  handleBrandPress,
+                  (brand) => brand.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
+                
+                <Divider style={styles.divider} />
+                
+                {/* Furniture Type Filters */}
+                {renderFilterSection(
+                  'Furniture Type',
+                  FURNITURE_TYPES,
+                  selectedFurnitureTypes,
+                  handleFurnitureTypePress,
+                  (type) => type.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
+              </ScrollView>
+
+              {/* Footer */}
+              <View style={styles.footer}>
+                <Button
+                  mode="contained"
+                  onPress={handleApply}
+                  style={styles.applyButton}
+                >
+                  Apply
+                </Button>
+              </View>
+            </BottomSheetView>
+          </TouchableWithoutFeedback>
         </BottomSheet>
       </GestureHandlerRootView>
     </Portal>
