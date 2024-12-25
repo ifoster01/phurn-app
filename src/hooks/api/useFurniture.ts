@@ -36,6 +36,8 @@ export function useFurniture(params?: FurnitureQueryParams) {
     filterCategories,
     priceSort,
     discountSort,
+    minPrice,
+    maxPrice,
   } = useProductFilterStore();
 
   return useInfiniteQuery({
@@ -48,6 +50,8 @@ export function useFurniture(params?: FurnitureQueryParams) {
       searchQuery: params?.searchQuery,
       priceSort,
       discountSort,
+      minPrice,
+      maxPrice,
     }] as const,
     
     queryFn: async ({ pageParam = 1 }) => {
@@ -96,6 +100,12 @@ export function useFurniture(params?: FurnitureQueryParams) {
           .filter(brand => selectedBrands.includes(brand.id))
           .map(brand => brand.title)
         );
+      }
+
+      // Apply price range filters
+      if (minPrice !== null || maxPrice !== null) {
+        query = query.gte('current_price', minPrice ?? 0)
+          .lte('current_price', maxPrice ?? 999999);
       }
 
       // Apply sorting

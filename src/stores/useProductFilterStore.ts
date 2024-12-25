@@ -39,6 +39,8 @@ interface ProductFilterState {
   selectedBrands: string[]
   
   // New sorting state
+  minPrice: number | null
+  maxPrice: number | null
   priceSort: PriceSortType
   discountSort: DiscountSortType
   
@@ -72,6 +74,8 @@ interface ProductFilterState {
   getFilterSummary: () => string[]
   
   // New sorting actions
+  setMinPrice: (price: number | null) => void
+  setMaxPrice: (price: number | null) => void
   setPriceSort: (sort: PriceSortType) => void
   setDiscountSort: (sort: DiscountSortType) => void
   clearSorting: () => void
@@ -97,6 +101,8 @@ export const useProductFilterStore = create<ProductFilterState>()(
       selectedRooms: [],
       selectedFurnitureTypes: [],
       selectedBrands: [],
+      minPrice: null,
+      maxPrice: null,
       
       // New sorting state
       priceSort: 'none',
@@ -156,6 +162,10 @@ export const useProductFilterStore = create<ProductFilterState>()(
           selectedBrands: state.selectedBrands.filter(b => b !== brand)
         }))
       },
+
+      // Filter by price
+      setMinPrice: (price) => set({ minPrice: price }),
+      setMaxPrice: (price) => set({ maxPrice: price }),
       
       // Clear functions
       clearNavigation: () => {

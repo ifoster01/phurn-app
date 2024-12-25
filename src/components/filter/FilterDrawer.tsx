@@ -1,15 +1,22 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Portal, Text, Button, useTheme, Chip, Divider, RadioButton } from 'react-native-paper';
+import { Portal, Text, Button, useTheme, Chip, Divider, RadioButton, TextInput } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useForm, Controller } from 'react-hook-form';
 import { FILTER_NAMES, FilterCategory, FurnitureType, PriceSortType, DiscountSortType, SORT_NAMES, useProductFilterStore } from '@/stores/useProductFilterStore';
 import { categories, roomCategories, RoomType, subcategory_map } from '@/constants/categories';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface FilterDrawerProps {
   visible: boolean;
   onDismiss: () => void;
+}
+
+interface FormValues {
+  minPrice: string;
+  maxPrice: string;
 }
 
 // Get screen height and adjust for safe area
@@ -26,17 +33,20 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
   const insets = useSafeAreaInsets();
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   
-  // Calculate snap points accounting for safe areas
-  const snapPoints = useMemo(() => {
-    const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
-    return [Math.min(MAX_DRAWER_HEIGHT, availableHeight)];
-  }, [insets]);
+  const { control, setValue } = useForm<FormValues>({
+    defaultValues: {
+      minPrice: '',
+      maxPrice: '',
+    },
+  });
 
   const {
     filterCategories,
     selectedRooms,
     selectedFurnitureTypes,
     selectedBrands,
+    minPrice,
+    maxPrice,
     addFilterCategory,
     removeFilterCategory,
     addRoom,
@@ -45,6 +55,8 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     removeFurnitureType,
     addBrand,
     removeBrand,
+    setMinPrice,
+    setMaxPrice,
     clearFilters,
     hasActiveFilters,
     priceSort,
@@ -53,6 +65,31 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     setDiscountSort,
     clearSorting,
   } = useProductFilterStore();
+
+  // Initialize form values when the drawer opens
+  useEffect(() => {
+    if (visible) {
+      setValue('minPrice', minPrice?.toString() ?? '');
+      setValue('maxPrice', maxPrice?.toString() ?? '');
+    }
+  }, [visible, minPrice, maxPrice, setValue]);
+
+  const updatePriceFilter = useDebouncedCallback((value: string, type: 'min' | 'max') => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    const parsedValue = numericValue === '' ? null : parseInt(numericValue, 10);
+    
+    if (type === 'min') {
+      setMinPrice(parsedValue);
+    } else {
+      setMaxPrice(parsedValue);
+    }
+  }, 300);
+
+  // Calculate snap points accounting for safe areas
+  const snapPoints = useMemo(() => {
+    const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
+    return [Math.min(MAX_DRAWER_HEIGHT, availableHeight)];
+  }, [insets]);
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
@@ -112,9 +149,15 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     }
   };
 
+  const handleApply = () => {
+    onDismiss();
+  };
+
   const handleClearAll = () => {
     clearFilters();
     clearSorting();
+    setValue('minPrice', '');
+    setValue('maxPrice', '');
   };
 
   const renderFilterSection = <T extends string>(
@@ -214,6 +257,72 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     </>
   );
 
+  // Update the price range section renderer
+  const renderPriceRangeSection = () => (
+    <>
+      <Text variant="titleMedium" style={styles.sectionTitle}>
+        Price Range
+      </Text>
+      <View style={styles.priceInputContainer}>
+        <View style={styles.priceInputWrapper}>
+          <Controller
+            control={control}
+            name="minPrice"
+            rules={{
+              validate: value => !value || parseInt(value) <= 999999 || 'Max value is 999,999'
+            }}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label="Min Price"
+                value={value}
+                onChangeText={(text) => {
+                  const numericValue = text.replace(/[^0-9]/g, '');
+                  if (numericValue === '' || parseInt(numericValue) <= 999999) {
+                    onChange(numericValue);
+                    updatePriceFilter(numericValue, 'min');
+                  }
+                }}
+                keyboardType="numeric"
+                mode="outlined"
+                style={styles.priceInput}
+                left={<TextInput.Affix text="$" />}
+                placeholder="0"
+              />
+            )}
+          />
+        </View>
+        <Text style={styles.priceInputSeparator}>to</Text>
+        <View style={styles.priceInputWrapper}>
+          <Controller
+            control={control}
+            name="maxPrice"
+            rules={{
+              validate: value => !value || parseInt(value) <= 999999 || 'Max value is 999,999'
+            }}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label="Max Price"
+                value={value}
+                onChangeText={(text) => {
+                  const numericValue = text.replace(/[^0-9]/g, '');
+                  if (numericValue === '' || parseInt(numericValue) <= 999999) {
+                    onChange(numericValue);
+                    updatePriceFilter(numericValue, 'max');
+                  }
+                }}
+                keyboardType="numeric"
+                mode="outlined"
+                style={styles.priceInput}
+                left={<TextInput.Affix text="$" />}
+                placeholder="999,999"
+              />
+            )}
+          />
+        </View>
+      </View>
+    </>
+  );
+
   return (
     <Portal>
       <GestureHandlerRootView style={styles.container}>
@@ -233,7 +342,7 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
               <Text variant="titleLarge" style={styles.title}>
                 Filters & Sorting
               </Text>
-              {(hasActiveFilters() || priceSort !== 'none' || discountSort !== 'none') && (
+              {(hasActiveFilters() || priceSort !== 'none' || discountSort !== 'none' || minPrice !== null || maxPrice !== null) && (
                 <Button onPress={handleClearAll} textColor={theme.colors.error}>
                   Clear All
                 </Button>
@@ -248,6 +357,11 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
             >
               {/* Sorting Section */}
               {renderSortingSection()}
+              
+              <Divider style={styles.divider} />
+
+              {/* Price Range Section */}
+              {renderPriceRangeSection()}
               
               <Divider style={styles.divider} />
 
@@ -304,7 +418,7 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
             <View style={styles.footer}>
               <Button
                 mode="contained"
-                onPress={onDismiss}
+                onPress={handleApply}
                 style={styles.applyButton}
               >
                 Apply
@@ -403,5 +517,22 @@ const styles = StyleSheet.create({
   },
   radioButton: {
     paddingVertical: 6,
+  },
+  priceInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  priceInputWrapper: {
+    flex: 1,
+  },
+  priceInput: {
+    backgroundColor: 'white',
+  },
+  priceInputSeparator: {
+    marginHorizontal: 12,
+    color: '#666666',
   },
 }); 
