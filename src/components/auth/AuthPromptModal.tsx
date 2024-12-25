@@ -1,22 +1,20 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Modal, Portal, Text, Button, useTheme } from 'react-native-paper';
+import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@/navigation/types';
+import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
 
-interface Props {
+interface AuthPromptModalProps {
   visible: boolean;
   onDismiss: () => void;
 }
 
-export function AuthPromptModal({ visible, onDismiss }: Props) {
-  const theme = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+export function AuthPromptModal({ visible, onDismiss }: AuthPromptModalProps) {
+  const navigation = useNavigation();
 
-  const handleSignUp = () => {
+  const handleSignIn = () => {
     onDismiss();
-    navigation.navigate('Tabs', { screen: 'Profile' });
+    navigation.navigate('Profile' as never);
   };
 
   return (
@@ -26,40 +24,43 @@ export function AuthPromptModal({ visible, onDismiss }: Props) {
         onDismiss={onDismiss}
         contentContainerStyle={styles.container}
       >
-        <Text variant="headlineMedium" style={styles.title}>
-          Oops! In order to save to a Wish List,
-          you need to have an account.
-        </Text>
-
-        <Button
-          mode="contained"
-          onPress={handleSignUp}
-          style={styles.signUpButton}
-          contentStyle={styles.signUpButtonContent}
-          labelStyle={styles.signUpButtonLabel}
+        <Animated.View 
+          entering={FadeIn.duration(300).springify()}
+          style={styles.content}
         >
-          Sign Up!
-        </Button>
-
-        <Button
-          mode="outlined"
-          onPress={handleSignUp}
-          style={styles.accountButton}
-          contentStyle={styles.accountButtonContent}
-          labelStyle={styles.accountButtonLabel}
-        >
-          I already have an account!
-        </Button>
-
-        <Button
-          mode="text"
-          onPress={onDismiss}
-          style={styles.noThanksButton}
-          contentStyle={styles.noThanksButtonContent}
-          labelStyle={styles.noThanksButtonLabel}
-        >
-          I'll keep furniture shopping the hard way
-        </Button>
+          <Text variant="headlineSmall" style={styles.title}>
+            Sign In Required
+          </Text>
+          <Text style={styles.description}>
+            Sign in to save items to your wishlist and access them from any device
+          </Text>
+          <View style={styles.buttons}>
+            <Animated.View 
+              entering={FadeIn.delay(100).duration(200)}
+              style={styles.buttonContainer}
+            >
+              <Button
+                mode="contained"
+                onPress={handleSignIn}
+                style={styles.signInButton}
+              >
+                Sign In
+              </Button>
+            </Animated.View>
+            <Animated.View 
+              entering={FadeIn.delay(150).duration(200)}
+              style={styles.buttonContainer}
+            >
+              <Button
+                mode="text"
+                onPress={onDismiss}
+                style={styles.noThanksButton}
+              >
+                No thanks, I'll continue browsing
+              </Button>
+            </Animated.View>
+          </View>
+        </Animated.View>
       </Modal>
     </Portal>
   );
@@ -68,56 +69,33 @@ export function AuthPromptModal({ visible, onDismiss }: Props) {
 const styles = StyleSheet.create({
   container: {
     margin: 20,
-    borderRadius: 24,
-    padding: 24,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 12,
+  },
+  content: {
     alignItems: 'center',
-    marginTop: '30%',
-    marginBottom: 'auto',
-    backgroundColor: '#FFFFFF',
   },
   title: {
-    textAlign: 'center',
-    marginBottom: 32,
-    color: '#E84D1C',
-    lineHeight: 38,
-  },
-  signUpButton: {
-    width: '100%',
-    borderRadius: 100,
-    marginBottom: 24,
-    backgroundColor: '#E84D1C',
-  },
-  signUpButtonContent: {
-    paddingVertical: 8,
-  },
-  signUpButtonLabel: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  noThanksButton: {
     marginBottom: 8,
-    width: '100%',
+    textAlign: 'center',
   },
-  noThanksButtonContent: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  noThanksButtonLabel: {
-    fontSize: 14,
+  description: {
+    textAlign: 'center',
+    marginBottom: 24,
     color: '#666666',
   },
-  accountButton: {
+  buttons: {
     width: '100%',
-    borderRadius: 100,
-    marginBottom: 24,
+    gap: 8,
   },
-  accountButtonContent: {
-    paddingVertical: 8,
+  buttonContainer: {
+    width: '100%',
   },
-  accountButtonLabel: {
-    fontSize: 18,
-    color: '#333333',
-    fontWeight: '600',
+  signInButton: {
+    width: '100%',
+  },
+  noThanksButton: {
+    width: '100%',
   },
 }); 

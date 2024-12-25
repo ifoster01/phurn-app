@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, View, Image, Pressable, Dimensions } from 'react-native';
+import { Text, IconButton } from 'react-native-paper';
 import { useAuth } from '@/providers/AuthProvider';
 import { AuthPromptModal } from '@/components/auth/AuthPromptModal';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
-interface Props {
+interface ProductCardProps {
   title: string;
   brand: string;
   price: number;
   regPrice: number;
   image: string;
+  isFavorite: boolean;
   onPress: () => void;
   onFavoritePress: () => void;
-  isFavorite: boolean;
 }
 
 const { width } = Dimensions.get('window');
@@ -24,12 +25,13 @@ export function ProductCard({
   price,
   regPrice,
   image,
+  isFavorite,
   onPress,
   onFavoritePress,
-  isFavorite,
-}: Props) {
+}: ProductCardProps) {
   const { user } = useAuth();
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const hasDiscount = price < regPrice;
 
   const handleFavoritePress = () => {
     if (!user) {
@@ -41,29 +43,36 @@ export function ProductCard({
 
   return (
     <>
-      <TouchableOpacity style={styles.container} onPress={onPress}>
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
-          <TouchableOpacity style={styles.favoriteButton} onPress={handleFavoritePress}>
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
+      <Animated.View 
+        entering={FadeIn.duration(400)}
+        style={styles.container}
+      >
+        <Pressable onPress={onPress} style={styles.pressable}>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: image }} style={styles.image} />
+            <IconButton
+              icon={isFavorite ? 'heart' : 'heart-outline'}
+              iconColor={isFavorite ? '#EA3A00' : '#666666'}
               size={24}
-              color={isFavorite ? '#E85D3F' : '#666'}
+              onPress={handleFavoritePress}
+              style={styles.favoriteButton}
             />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.details}>
-          <Text style={styles.brand}>{brand}</Text>
-          <Text style={styles.title} numberOfLines={2}>{title.replace('\\', '"')}</Text>
-          <View style={styles.priceContainer}>
-            <Text style={{
-              ...styles.price,
-              color: price < regPrice ? '#EF5350' : '#333',
-            }}>{price.toLocaleString("en-US", {currency: "USD", style: "currency"})}</Text>
-            { price < regPrice && <Text style={styles.regPrice}>${regPrice}</Text> }
           </View>
-        </View>
-      </TouchableOpacity>
+          <View style={styles.content}>
+            <Text numberOfLines={1} style={styles.brand}>{brand}</Text>
+            <Text numberOfLines={2} style={styles.title}>{title}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={{
+                ...styles.price,
+                color: hasDiscount ? '#EA3A00' : '#000000',
+              }}>{price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</Text>
+              {hasDiscount && (
+                <Text style={styles.regPrice}>${regPrice}</Text>
+              )}
+            </View>
+          </View>
+        </Pressable>
+      </Animated.View>
 
       <AuthPromptModal
         visible={showAuthPrompt}
@@ -76,53 +85,66 @@ export function ProductCard({
 const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
-    marginBottom: 24,
+    flex: 1,
+    margin: 8,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  pressable: {
+    flex: 1,
   },
   imageContainer: {
-    position: 'relative',
+    aspectRatio: 1,
     width: '100%',
-    height: CARD_WIDTH,
-    borderRadius: 8,
-    overflow: 'hidden',
+    position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   favoriteButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 6,
+    top: 0,
+    right: 0,
+    margin: 4,
+  },
+  content: {
+    padding: 12,
+  },
+  brand: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
+    color: '#000000',
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  regPrice: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 8,
-    textDecorationLine: 'line-through',
-  },
-  details: {
-    paddingTop: 8,
-  },
-  brand: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 4,
+    gap: 8,
   },
   price: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#000000',
+  },
+  regPrice: {
+    fontSize: 12,
+    color: '#666666',
+    textDecorationLine: 'line-through',
   },
 });

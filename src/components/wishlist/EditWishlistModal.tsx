@@ -4,7 +4,7 @@ import { Portal, Modal, TextInput, Button, Text } from 'react-native-paper';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useForm, Controller } from 'react-hook-form';
-
+import Animated, { FadeIn } from 'react-native-reanimated';
 interface Props {
   visible: boolean;
   onDismiss: () => void;
@@ -64,55 +64,60 @@ export function EditWishlistModal({ visible, onDismiss, wishlistId, currentName 
         onDismiss={handleDismiss}
         contentContainerStyle={styles.container}
       >
-        <Text variant="titleLarge" style={styles.title}>Edit Wishlist Name</Text>
-        
-        <Controller
-          control={control}
-          name="name"
-          rules={{
-            required: 'Name is required',
-            validate: value => value.trim().length > 0 || 'Name cannot be empty'
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              mode="outlined"
-              label="Wishlist Name"
-              style={styles.input}
-              error={!!errors.name}
-              disabled={updateWishlist.isPending}
-            />
+        <Animated.View 
+          entering={FadeIn.springify().duration(500)}
+          style={styles.content}
+        >
+          <Text variant="titleLarge" style={styles.title}>Edit Wishlist Name</Text>
+          
+          <Controller
+            control={control}
+            name="name"
+            rules={{
+              required: 'Name is required',
+              validate: value => value.trim().length > 0 || 'Name cannot be empty'
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                mode="outlined"
+                label="Wishlist Name"
+                style={styles.input}
+                error={!!errors.name}
+                disabled={updateWishlist.isPending}
+              />
+            )}
+          />
+          
+          {errors.name && (
+            <Text style={styles.error}>{errors.name.message}</Text>
           )}
-        />
-        
-        {errors.name && (
-          <Text style={styles.error}>{errors.name.message}</Text>
-        )}
-        
-        {updateWishlist.error && (
-          <Text style={styles.error}>{updateWishlist.error.message}</Text>
-        )}
+          
+          {updateWishlist.error && (
+            <Text style={styles.error}>{updateWishlist.error.message}</Text>
+          )}
 
-        <Button
-          mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          style={styles.saveButton}
-          loading={updateWishlist.isPending}
-          disabled={updateWishlist.isPending || !isDirty}
-        >
-          Save
-        </Button>
-        
-        <Button
-          mode="outlined"
-          onPress={handleDismiss}
-          style={styles.cancelButton}
-          disabled={updateWishlist.isPending}
-        >
-          Cancel
-        </Button>
+          <Button
+            mode="contained"
+            onPress={handleSubmit(onSubmit)}
+            style={styles.saveButton}
+            loading={updateWishlist.isPending}
+            disabled={updateWishlist.isPending || !isDirty}
+          >
+            Save
+          </Button>
+          
+          <Button
+            mode="outlined"
+            onPress={handleDismiss}
+            style={styles.cancelButton}
+            disabled={updateWishlist.isPending}
+          >
+            Cancel
+          </Button>
+        </Animated.View>
       </Modal>
     </Portal>
   );
@@ -126,6 +131,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: '30%',
     marginBottom: 'auto',
+  },
+  content: {
+    width: '100%',
   },
   title: {
     marginBottom: 16,

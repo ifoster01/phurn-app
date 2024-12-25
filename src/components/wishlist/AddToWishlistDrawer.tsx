@@ -180,6 +180,7 @@ export function AddToWishlistDrawer({ visible, onDismiss, furnitureId }: Props) 
           visible={!!successMessage}
           onDismiss={() => setSuccessMessage(null)}
           duration={2000}
+          wrapperStyle={{ top: 32 }}
         >
           {successMessage}
         </Snackbar>

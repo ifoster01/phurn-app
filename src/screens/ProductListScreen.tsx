@@ -15,6 +15,7 @@ import { FilterDrawer } from '@/components/filter/FilterDrawer';
 import { useProductFilter } from '@/providers/ProductFilterProvider';
 import { FILTER_NAMES } from '@/stores/useProductFilterStore';
 import type { Furniture } from '@/hooks/api/useFurniture';
+import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanimated';
 
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<HomeStackParamList, 'ProductList'>,
@@ -93,23 +94,30 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
     navigation.setParams({ searchQuery: undefined });
   }, [navigation]);
 
-  const renderItem = useCallback(({ item }: { item: Furniture }) => (
-    <ProductCard
-      title={item.name || ''}
-      brand={item.brand || ''}
-      price={item.current_price || 0}
-      regPrice={item.regular_price || 0}
-      image={item.img_src_url || ''}
-      isFavorite={isInWishlist(item.id)}
-      onPress={() => navigation.navigate('Product', { furniture: item })}
-      onFavoritePress={() => handleFavoritePress(item.id)}
-    />
+  const renderItem = useCallback(({ item, index }: { item: Furniture; index: number }) => (
+    <Animated.View 
+      entering={FadeInDown.delay(((index % 10) * 100)).springify()}
+    >
+      <ProductCard
+        title={item.name || ''}
+        brand={item.brand || ''}
+        price={item.current_price || 0}
+        regPrice={item.regular_price || 0}
+        image={item.img_src_url || ''}
+        isFavorite={isInWishlist(item.id)}
+        onPress={() => navigation.navigate('Product', { furniture: item })}
+        onFavoritePress={() => handleFavoritePress(item.id)}
+      />
+    </Animated.View>
   ), [isInWishlist, handleFavoritePress, navigation]);
 
   const renderHeader = () => {
     if (!searchQuery) return null;
     return (
-      <View style={styles.searchInfo}>
+      <Animated.View 
+        entering={SlideInRight.duration(400)} 
+        style={styles.searchInfo}
+      >
         <Chip
           icon="magnify"
           closeIcon={() => <Icon source="close" size={16} color="#666666" />}
@@ -122,7 +130,7 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
         <Text variant="bodySmall" style={styles.resultCount}>
           {data?.pages[0]?.totalCount ?? 0} results found
         </Text>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -147,80 +155,94 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
   if (error) {
     return (
       <SafeAreaWrapper>
-        <View style={styles.centerContainer}>
+        <Animated.View 
+          entering={FadeIn.duration(400)} 
+          style={styles.centerContainer}
+        >
           <Text>Error loading products. Please try again.</Text>
           <IconButton onPress={() => refetch()} icon="refresh" />
-        </View>
+        </Animated.View>
       </SafeAreaWrapper>
     );
   }
 
   return (
     <SafeAreaWrapper>
-      <Appbar.Header style={styles.header}>
-        <Appbar.BackAction onPress={navigation.goBack} />
-        <Appbar.Content title={getScreenTitle()} />
-        <Appbar.Action iconColor='#666666' icon="tune-variant" onPress={showFilterDrawer} />
-      </Appbar.Header>
-      
-      <SearchBar initialValue={searchQuery} />
-      
-      {isLoading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-        </View>
-      ) : allItems.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <Text variant="titleMedium" style={styles.noResults}>No products found</Text>
-          {searchQuery && (
-            <Button 
-              mode="contained" 
-              onPress={handleClearSearch}
-              style={styles.clearSearchButton}
-            >
-              Clear Search
-            </Button>
-          )}
-        </View>
-      ) : (
-        <FlatList
-          data={allItems}
-          numColumns={2}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.listContent}
-          columnWrapperStyle={styles.columnWrapper}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
+      <Animated.View 
+        entering={FadeIn.duration(400)} 
+        style={{ flex: 1 }}
+      >
+        <Appbar.Header style={styles.header}>
+          <Appbar.BackAction onPress={navigation.goBack} />
+          <Appbar.Content title={getScreenTitle()} />
+          <Appbar.Action iconColor='#666666' icon="tune-variant" onPress={showFilterDrawer} />
+        </Appbar.Header>
+        
+        <SearchBar initialValue={searchQuery} />
+        
+        {isLoading ? (
+          <Animated.View 
+            entering={FadeIn.duration(400)} 
+            style={styles.centerContainer}
+          >
+            <ActivityIndicator size="large" color="#EA3A00" />
+          </Animated.View>
+        ) : allItems.length === 0 ? (
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()} 
+            style={styles.centerContainer}
+          >
+            <Text variant="titleMedium" style={styles.noResults}>No products found</Text>
+            {searchQuery && (
+              <Button 
+                mode="contained" 
+                onPress={handleClearSearch}
+                style={styles.clearSearchButton}
+              >
+                Clear Search
+              </Button>
+            )}
+          </Animated.View>
+        ) : (
+          <FlatList
+            data={allItems}
+            numColumns={2}
+            ListHeaderComponent={renderHeader}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={styles.columnWrapper}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                colors={['#EA3A00']}
+                tintColor="#EA3A00"
+              />
             }
-          }}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={renderFooter}
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={refetch}
-              colors={['#EA3A00']}
-              tintColor="#EA3A00"
-            />
-          }
+          />
+        )}
+
+        <FilterDrawer
+          visible={filterDrawerVisible}
+          onDismiss={hideFilterDrawer}
         />
-      )}
 
-      <FilterDrawer
-        visible={filterDrawerVisible}
-        onDismiss={hideFilterDrawer}
-      />
-
-      <AddToWishlistDrawer
-        visible={!!selectedFurnitureId}
-        onDismiss={() => setSelectedFurnitureId(null)}
-        furnitureId={selectedFurnitureId || ''}
-      />
+        <AddToWishlistDrawer
+          visible={!!selectedFurnitureId}
+          onDismiss={() => setSelectedFurnitureId(null)}
+          furnitureId={selectedFurnitureId || ''}
+        />
+      </Animated.View>
     </SafeAreaWrapper>
   );
 }

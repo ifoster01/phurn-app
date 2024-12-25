@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Modal, Portal, Text, Button, TextInput, useTheme, HelperText } from 'react-native-paper';
 import { useCreateWishlist } from '@/hooks/api/useWishlists';
 import { useForm, Controller } from 'react-hook-form';
+import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
 
 interface Props {
   visible: boolean;
@@ -49,62 +50,67 @@ export function CreateWishlistModal({ visible, onDismiss, onCreateSuccess }: Pro
           { backgroundColor: theme.colors.background }
         ]}
       >
-        <Text variant="titleLarge" style={styles.title}>
-          Create New Wishlist
-        </Text>
+        <Animated.View 
+          entering={FadeIn.springify().duration(500)}
+          style={styles.content}
+        >
+          <Text variant="titleLarge" style={styles.title}>
+            Create New Wishlist
+          </Text>
 
-        <Controller
-          control={control}
-          name="name"
-          rules={{
-            required: 'Name is required',
-            validate: value => value.trim().length > 0 || 'Name cannot be empty'
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Wishlist Name"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              mode="outlined"
-              style={styles.input}
-              error={!!errors.name}
-              disabled={createWishlist.isPending}
-            />
+          <Controller
+            control={control}
+            name="name"
+            rules={{
+              required: 'Name is required',
+              validate: value => value.trim().length > 0 || 'Name cannot be empty'
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Wishlist Name"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                mode="outlined"
+                style={styles.input}
+                error={!!errors.name}
+                disabled={createWishlist.isPending}
+              />
+            )}
+          />
+          
+          {errors.name && (
+            <HelperText type="error" visible={true}>
+              {errors.name.message}
+            </HelperText>
           )}
-        />
-        
-        {errors.name && (
-          <HelperText type="error" visible={true}>
-            {errors.name.message}
-          </HelperText>
-        )}
 
-        {createWishlist.error && (
-          <HelperText type="error" visible={true}>
-            {createWishlist.error instanceof Error ? createWishlist.error.message : 'An unexpected error occurred'}
-          </HelperText>
-        )}
+          {createWishlist.error && (
+            <HelperText type="error" visible={true}>
+              {createWishlist.error instanceof Error ? createWishlist.error.message : 'An unexpected error occurred'}
+            </HelperText>
+          )}
 
-        <View style={styles.buttonContainer}>
-          <Button
-            mode="contained"
-            onPress={handleSubmit(onSubmit)}
-            loading={createWishlist.isPending}
-            disabled={createWishlist.isPending}
-            style={styles.button}
-          >
-            Create
-          </Button>
-          <Button
-            mode="text"
-            onPress={handleDismiss}
-            disabled={createWishlist.isPending}
-            style={styles.button}
-          >
-            Cancel
-          </Button>
-        </View>
+          <View style={styles.buttonContainer}>
+            <Button
+              mode="contained"
+              onPress={handleSubmit(onSubmit)}
+              loading={createWishlist.isPending}
+              disabled={createWishlist.isPending}
+              style={styles.button}
+            >
+              Create
+            </Button>
+            <Button
+              mode="text"
+              onPress={handleDismiss}
+              disabled={createWishlist.isPending}
+              style={styles.button}
+            >
+              Cancel
+            </Button>
+          </View>
+        </Animated.View>
       </Modal>
     </Portal>
   );
@@ -117,6 +123,9 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: '30%',
     marginBottom: 'auto',
+  },
+  content: {
+    width: '100%',
   },
   title: {
     marginBottom: 20,

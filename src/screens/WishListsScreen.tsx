@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
-import { Text, Button, ActivityIndicator, Snackbar } from 'react-native-paper';
+import { Text, Button, ActivityIndicator, Snackbar, IconButton } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { useAuth } from '@/providers/AuthProvider';
 import { useWishlists, useDeleteWishlist, Wishlist, WishlistItem } from '@/hooks/api/useWishlists';
@@ -11,6 +11,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, TabParamList } from '@/navigation/types';
 import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
+import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 type NavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Wishlists'>,
@@ -32,7 +34,10 @@ function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }:
     .filter(Boolean);
 
   return (
-    <View style={styles.wishlistSection}>
+    <Animated.View 
+      entering={FadeInDown.duration(400).springify()} 
+      style={styles.wishlistSection}
+    >
       <View style={styles.wishlistHeader}>
         <View>
           <Text variant="titleLarge">{wishlist.name}</Text>
@@ -60,8 +65,9 @@ function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }:
 
       <View style={styles.thumbnailGrid}>
         {thumbnails.map((url, index) => (
-          <Image
+          <Animated.Image
             key={index}
+            entering={FadeIn.delay(index * 100)}
             source={{ uri: url ?? '' }}
             style={styles.thumbnail}
             resizeMode="cover"
@@ -85,7 +91,7 @@ function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }:
           Delete Wishlist
         </Text>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -140,7 +146,10 @@ export function WishListsScreen() {
   if (!user) {
     return (
       <SafeAreaWrapper>
-        <View style={[styles.container, styles.unauthContainer]}>
+        <Animated.View 
+          entering={FadeInDown.duration(400).springify()} 
+          style={[styles.container, styles.unauthContainer]}
+        >
           <View style={styles.unauthContent}>
             <Text variant="headlineLarge" style={styles.unauthTitle}>
               Wish Lists
@@ -161,7 +170,7 @@ export function WishListsScreen() {
               Sign In or Create Account
             </Button>
           </View>
-        </View>
+        </Animated.View>
       </SafeAreaWrapper>
     );
   }
@@ -169,9 +178,12 @@ export function WishListsScreen() {
   if (isLoading) {
     return (
       <SafeAreaWrapper>
-        <View style={[styles.container, styles.centerContent]}>
+        <Animated.View 
+          entering={FadeIn.duration(400)} 
+          style={[styles.container, styles.centerContent]}
+        >
           <ActivityIndicator size="large" />
-        </View>
+        </Animated.View>
       </SafeAreaWrapper>
     );
   }
@@ -179,7 +191,10 @@ export function WishListsScreen() {
   if (isError) {
     return (
       <SafeAreaWrapper>
-        <View style={[styles.container, styles.centerContent]}>
+        <Animated.View 
+          entering={FadeIn.duration(400)} 
+          style={[styles.container, styles.centerContent]}
+        >
           <Text>Failed to load wishlists</Text>
           <Button 
             mode="contained" 
@@ -190,7 +205,7 @@ export function WishListsScreen() {
           >
             Retry
           </Button>
-        </View>
+        </Animated.View>
       </SafeAreaWrapper>
     );
   }
@@ -199,36 +214,72 @@ export function WishListsScreen() {
 
   return (
     <SafeAreaWrapper>
-      <View style={styles.container}>
+      <Animated.View 
+        entering={FadeIn.duration(400)} 
+        style={styles.container}
+      >
         <Text variant="headlineMedium" style={styles.title}>
           Wish Lists
         </Text>
 
-        {!hasWishlists && (
-          <Text style={styles.emptyStateText}>
-            You haven't created any wishlists yet
-          </Text>
+        {!hasWishlists ? (
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()}
+            style={styles.emptyStateContainer}
+          >
+            <Text style={styles.emptyStateText}>
+              You haven't created any wishlists yet
+            </Text>
+            <TouchableOpacity 
+              style={styles.createButton}
+              onPress={() => setCreateModalVisible(true)}
+            >
+              <View style={styles.createButtonContent}>
+                <Text style={styles.createButtonText}>Create New Wish List</Text>
+                <IconButton 
+                  icon="plus" 
+                  iconColor="#FFFFFF" 
+                  size={24}
+                  style={styles.createButtonIcon}
+                />
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        ) : (
+          <>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {Object.entries(wishlistData?.groupedItems || {}).map(([wishlistId, wishlist], index) => (
+                <WishlistSection
+                  key={wishlistId}
+                  wishlist={wishlist}
+                  onDelete={(id) => handleDeleteWishlist(id, wishlist.name)}
+                  isDeleting={deleteWishlist.isPending}
+                  onNavigate={handleNavigateToWishlist}
+                  onEdit={(id, name) => handleEditWishlist(id, name)}
+                />
+              ))}
+            </ScrollView>
+
+            <Animated.View 
+              entering={FadeInDown.delay(300).springify()}
+            >
+              <TouchableOpacity 
+                style={styles.createButton}
+                onPress={() => setCreateModalVisible(true)}
+              >
+                <View style={styles.createButtonContent}>
+                  <Text style={styles.createButtonText}>Create New Wish List</Text>
+                  <IconButton 
+                    icon="plus" 
+                    iconColor="#FFFFFF" 
+                    size={24}
+                    style={styles.createButtonIcon}
+                  />
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          </>
         )}
-
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {Object.entries(wishlistData?.groupedItems || {}).map(([wishlistId, wishlist]) => (
-            <WishlistSection
-              key={wishlistId}
-              wishlist={wishlist}
-              onDelete={(id) => handleDeleteWishlist(id, wishlist.name)}
-              isDeleting={deleteWishlist.isPending}
-              onNavigate={handleNavigateToWishlist}
-              onEdit={(id, name) => handleEditWishlist(id, name)}
-            />
-          ))}
-        </ScrollView>
-
-        <TouchableOpacity 
-          style={styles.createButton}
-          onPress={() => setCreateModalVisible(true)}
-        >
-          <Text style={styles.createButtonText}>+ Create New Wish List</Text>
-        </TouchableOpacity>
 
         <CreateWishlistModal
           visible={createModalVisible}
@@ -253,7 +304,7 @@ export function WishListsScreen() {
         >
           {successMessage}
         </Snackbar>
-      </View>
+      </Animated.View>
     </SafeAreaWrapper>
   );
 }
@@ -275,10 +326,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#666',
   },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 100,
+  },
   emptyStateText: {
     textAlign: 'center',
     color: '#666',
-    marginVertical: 24,
+    marginBottom: 24,
+    fontSize: 16,
   },
   wishlistSection: {
     marginBottom: 32,
@@ -318,9 +376,10 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   createButton: {
-    paddingVertical: 16,
+    paddingVertical: 10,
     backgroundColor: '#E85D3F',
     borderRadius: 12,
+    paddingHorizontal: 16,
   },
   createButtonText: {
     fontSize: 16,
@@ -372,5 +431,16 @@ const styles = StyleSheet.create({
   signInButtonLabel: {
     fontSize: 18,
     fontWeight: '600',
+  },
+  createButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  createButtonIcon: {
+    margin: 0,
+    padding: 0,
+    backgroundColor: 'transparent',
   },
 });

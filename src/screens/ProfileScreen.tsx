@@ -12,6 +12,7 @@ import { AuthError } from '@supabase/supabase-js';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GoogleButton } from '@/components/auth/GoogleButton';
 import { AppleButton } from '@/components/auth/AppleButton';
+import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 
 type ProfileScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Profile'>,
@@ -62,95 +63,105 @@ export function ProfileScreen() {
           <Appbar.Content title="Account" />
         </Appbar.Header>
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Sign In to Your Account
-          </Text>
-          <Text style={styles.subtitle}>
-            Create an account or sign in to save your favorite items and create wishlists
-          </Text>
-          
-          <View style={styles.socialButtons}>
-            <GoogleButton />
-            {Platform.OS === 'ios' && (
-              <AppleButton />
-            )}
-          </View>
+          <Animated.View 
+            entering={FadeInDown.duration(400).springify()}
+          >
+            <Text variant="headlineMedium" style={styles.title}>
+              Sign In to Your Account
+            </Text>
+            <Text style={styles.subtitle}>
+              Create an account or sign in to save your favorite items and create wishlists
+            </Text>
+            
+            <View style={styles.socialButtons}>
+              <Animated.View entering={FadeInDown.delay(100).springify()}>
+                <GoogleButton />
+              </Animated.View>
+              {Platform.OS === 'ios' && (
+                <Animated.View entering={FadeInDown.delay(200).springify()}>
+                  <AppleButton />
+                </Animated.View>
+              )}
+            </View>
 
-          <Divider style={styles.divider} />
-          <Text style={styles.orText}>or continue with email</Text>
+            <Divider style={styles.divider} />
+            <Text style={styles.orText}>or continue with email</Text>
 
-          <TextInput
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            mode="outlined"
-            style={styles.input}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            outlineColor="#CCCCCC"
-            activeOutlineColor="#EA3A00"
-            textColor="#000000"
-            theme={{
-              colors: {
-                background: '#FFFFFF',
-                placeholder: '#666666',
-                onSurfaceVariant: '#666666',
-              }
-            }}
-          />
-          
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            mode="outlined"
-            style={styles.input}
-            secureTextEntry={!showPassword}
-            autoComplete="password"
-            outlineColor="#CCCCCC"
-            activeOutlineColor="#EA3A00"
-            textColor="#000000"
-            theme={{
-              colors: {
-                background: '#FFFFFF',
-                placeholder: '#666666',
-                onSurfaceVariant: '#666666',
-              }
-            }}
-            right={
-              <TextInput.Icon
-                icon={showPassword ? "eye-off" : "eye"}
-                onPress={() => setShowPassword(!showPassword)}
-                color="#666666"
+            <Animated.View entering={FadeInDown.delay(300).springify()}>
+              <TextInput
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                mode="outlined"
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                outlineColor="#CCCCCC"
+                activeOutlineColor="#EA3A00"
+                textColor="#000000"
+                theme={{
+                  colors: {
+                    background: '#FFFFFF',
+                    placeholder: '#666666',
+                    onSurfaceVariant: '#666666',
+                  }
+                }}
               />
-            }
-          />
+              
+              <TextInput
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                mode="outlined"
+                style={styles.input}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+                outlineColor="#CCCCCC"
+                activeOutlineColor="#EA3A00"
+                textColor="#000000"
+                theme={{
+                  colors: {
+                    background: '#FFFFFF',
+                    placeholder: '#666666',
+                    onSurfaceVariant: '#666666',
+                  }
+                }}
+                right={
+                  <TextInput.Icon
+                    icon={showPassword ? "eye-off" : "eye"}
+                    onPress={() => setShowPassword(!showPassword)}
+                    color="#666666"
+                  />
+                }
+              />
 
-          <Button
-            mode="contained"
-            onPress={handleEmailLogin}
-            loading={loading}
-            style={styles.button}
-          >
-            Sign In
-          </Button>
+              <Button
+                mode="contained"
+                onPress={handleEmailLogin}
+                loading={loading}
+                style={styles.button}
+              >
+                Sign In
+              </Button>
 
-          <Button
-            mode="text"
-            onPress={() => {}}
-            style={styles.forgotPassword}
-          >
-            Forgot Password?
-          </Button>
+              <Button
+                mode="text"
+                onPress={() => {}}
+                style={styles.forgotPassword}
+              >
+                Forgot Password?
+              </Button>
 
-          <Button
-            mode="text"
-            onPress={() => navigation.navigate('Signup' as never)}
-            style={styles.signupLink}
-          >
-            Don't have an account? Sign Up
-          </Button>
+              <Button
+                mode="text"
+                onPress={() => navigation.navigate('Signup' as never)}
+                style={styles.signupLink}
+              >
+                Don't have an account? Sign Up
+              </Button>
+            </Animated.View>
+          </Animated.View>
         </ScrollView>
       </SafeAreaWrapper>
     );
@@ -163,39 +174,48 @@ export function ProfileScreen() {
       </Appbar.Header>
 
       <ScrollView style={styles.container}>
-        <List.Section>
-          <List.Item
-            title="Email"
-            description={user?.email}
-            left={(props) => <List.Icon {...props} icon="email" />}
-          />
-          <List.Item
-            title="Password"
-            description="••••••••••"
-            left={(props) => <List.Icon {...props} icon="lock" />}
-            // right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => {}}
-          />
-        </List.Section>
+        <Animated.View entering={FadeIn.duration(400)}>
+          <List.Section>
+            <Animated.View entering={FadeInDown.delay(100).springify()}>
+              <List.Item
+                title="Email"
+                description={user?.email}
+                left={(props) => <List.Icon {...props} icon="email" />}
+              />
+            </Animated.View>
+            <Animated.View entering={FadeInDown.delay(200).springify()}>
+              <List.Item
+                title="Password"
+                description="••••••••••"
+                left={(props) => <List.Icon {...props} icon="lock" />}
+                onPress={() => {}}
+              />
+            </Animated.View>
+          </List.Section>
 
-        <View style={styles.buttonContainer}>
-          <Button
-            mode="contained"
-            onPress={handleLogout}
-            style={styles.signOutButton}
-          >
-            Sign Out
-          </Button>
+          <View style={styles.buttonContainer}>
+            <Animated.View entering={FadeInDown.delay(300).springify()}>
+              <Button
+                mode="contained"
+                onPress={handleLogout}
+                style={styles.signOutButton}
+              >
+                Sign Out
+              </Button>
+            </Animated.View>
 
-          <Button
-            mode="outlined"
-            onPress={deleteAccount}
-            style={styles.deleteButton}
-            textColor="#FF3B30"
-          >
-            Delete Account
-          </Button>
-        </View>
+            <Animated.View entering={FadeInDown.delay(400).springify()}>
+              <Button
+                mode="outlined"
+                onPress={deleteAccount}
+                style={styles.deleteButton}
+                textColor="#FF3B30"
+              >
+                Delete Account
+              </Button>
+            </Animated.View>
+          </View>
+        </Animated.View>
       </ScrollView>
     </SafeAreaWrapper>
   );

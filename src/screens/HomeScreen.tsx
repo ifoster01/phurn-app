@@ -8,6 +8,7 @@ import { HomeStackParamList } from '@/navigation/types';
 import PhurnLogo from '@/assets/logos/phurn.svg';
 import { useProductFilter } from '@/providers/ProductFilterProvider';
 import { FilterCategory, NavigationType } from '@/stores/useProductFilterStore';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'HomeScreen'>;
 
@@ -81,21 +82,34 @@ export function HomeScreen({ navigation }: Props) {
 
   return (
     <SafeAreaWrapper>
-      <View style={styles.header}>
+      <Animated.View 
+        entering={FadeIn.duration(400)}
+        style={styles.header}
+      >
         <PhurnLogo width={40} height={40} />
         <Text style={styles.headerText}>
           PHURN
         </Text>
-      </View>
-      <SearchBar />
+      </Animated.View>
+
+      <Animated.View 
+        entering={FadeIn.delay(100).duration(400)}
+      >
+        <SearchBar />
+      </Animated.View>
+
       <ScrollView style={styles.container}>
-        {categories.map((category) => (
-          <CategoryCard
+        {categories.map((category, index) => (
+          <Animated.View 
             key={category.id}
-            title={category.title}
-            image={category.image}
-            onPress={() => handleCategoryPress(category.id, category.type)}
-          />
+            entering={FadeInDown.delay(200 + (index * 100)).duration(400)}
+          >
+            <CategoryCard
+              title={category.title}
+              image={category.image}
+              onPress={() => handleCategoryPress(category.id, category.type)}
+            />
+          </Animated.View>
         ))}
       </ScrollView>
     </SafeAreaWrapper>
