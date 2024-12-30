@@ -12,13 +12,13 @@ export type RoomType = keyof typeof room_map
 export type FurnitureType = keyof typeof subcategory_map
 
 // Filter types
-export type FilterCategory = 'new' | 'clearance'
+export type FilterCategory = 'new' | 'deals'
 export type PriceSortType = 'none' | 'high-to-low' | 'low-to-high'
 export type DiscountSortType = 'none' | 'highest-first'
 
 export const FILTER_NAMES = {
   new: 'New Arrivals',
-  clearance: 'Clearance'
+  deals: 'Best Deals'
 } as const
 
 export const SORT_NAMES: Record<PriceSortType | DiscountSortType, string> = {
@@ -89,7 +89,7 @@ interface ProductFilterState {
 // Define filter mappings
 const FILTER_MAPPINGS = {
   new: (item: Furniture) => item.new_product === true,
-  clearance: (item: Furniture) => item.on_clearance === true,
+  deals: (item: Furniture) => item.on_clearance === true,
 }
 
 export const useProductFilterStore = create<ProductFilterState>()(

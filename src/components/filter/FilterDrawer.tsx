@@ -24,7 +24,7 @@ interface FormValues {
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.9;
 
-const FILTER_CATEGORIES: FilterCategory[] = ['new', 'clearance'];
+const FILTER_CATEGORIES: FilterCategory[] = ['new', 'deals'];
 const ROOM_TYPES = Object.keys(roomCategories) as RoomType[];
 const FURNITURE_TYPES = Object.keys(subcategory_map) as FurnitureType[];
 const BRANDS = categories.brand.map(brand => brand.id);

@@ -17,7 +17,7 @@ export const categories: Record<CategoryType, CategoryItem[]> = {
   ],
   deals: [
     { id: 'all-deals', title: 'Shop All Deals' },
-    { id: 'clearance', title: 'Clearance' },
+    { id: 'deals', title: 'Best Deals' },
     { id: 'open-box', title: 'Open Box Deals' },
   ],
   type: [

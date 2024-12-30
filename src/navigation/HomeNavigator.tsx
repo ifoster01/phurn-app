@@ -1,3 +1,4 @@
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '@/screens/HomeScreen';
 import { CategoryListScreen } from '@/screens/CategoryListScreen';
@@ -5,10 +6,13 @@ import { ProductListScreen } from '@/screens/ProductListScreen';
 import { ProductScreen } from '@/screens/ProductScreen';
 import type { HomeStackParamList } from './types';
 import { RoomListScreen } from '@/screens/RoomListScreen';
+import { useProductFilterStore } from '@/stores/useProductFilterStore';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
 export function HomeNavigator() {
+  const { clearAll } = useProductFilterStore();
+
   return (
     <Stack.Navigator 
       initialRouteName="HomeScreen"
@@ -23,12 +27,18 @@ export function HomeNavigator() {
         options={{
           title: 'Home'
         }}
+        listeners={{
+          focus: () => clearAll()
+        }}
       />
       <Stack.Screen 
         name="CategoryList" 
         component={CategoryListScreen}
         options={{
           title: 'Categories'
+        }}
+        listeners={{
+          focus: () => clearAll()
         }}
       />
       <Stack.Screen 
@@ -43,6 +53,9 @@ export function HomeNavigator() {
         component={RoomListScreen}
         options={{
           title: 'Room List'
+        }}
+        listeners={{
+          focus: () => clearAll()
         }}
       />
       <Stack.Screen 

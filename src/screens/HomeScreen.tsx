@@ -27,7 +27,7 @@ const categories: Category[] = [
     type: 'filter'
   },
   { 
-    id: 'clearance', 
+    id: 'deals', 
     title: 'Best Deals', 
     image: require('@/assets/images/categories/best-deals.jpeg'),
     type: 'filter'

@@ -71,7 +71,7 @@ export function useFurniture(params?: FurnitureQueryParams) {
       filterCategories.forEach(category => {
         if (category === 'new') {
           query = query.eq('new_product', true);
-        } else if (category === 'clearance') {
+        } else if (category === 'deals') {
           query = query.eq('on_clearance', true);
         }
       });
