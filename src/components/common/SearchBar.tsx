@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import { View, TextInput, StyleSheet, Keyboard, Pressable } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, TextInput, StyleSheet, Keyboard, Pressable, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { IconButton } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { HomeStackParamList } from '@/navigation/types';
 
@@ -18,10 +18,22 @@ export function SearchBar({ onSearch, initialValue }: SearchBarProps): React.JSX
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute();
 
+  // Dismiss keyboard when screen loses focus
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (Platform.OS === 'ios') {
+          Keyboard.dismiss();
+        }
+      };
+    }, [])
+  );
+
   const handleSearch = useCallback((): void => {
     const trimmedQuery = searchQuery.trim();
     if (!trimmedQuery) return;
     
+    // Dismiss keyboard before navigation
     Keyboard.dismiss();
     
     if (onSearch) {
@@ -32,13 +44,16 @@ export function SearchBar({ onSearch, initialValue }: SearchBarProps): React.JSX
         navigation.setParams({ searchQuery: trimmedQuery });
       } else {
         // If we're on any other screen, navigate to ProductList with the search query
-        navigation.navigate('ProductList', { searchQuery: trimmedQuery });
+        requestAnimationFrame(() => {
+          navigation.navigate('ProductList', { searchQuery: trimmedQuery });
+        });
       }
     }
   }, [searchQuery, route.name, navigation, onSearch]);
 
   const handleClear = useCallback((): void => {
     setSearchQuery('');
+    Keyboard.dismiss();
     if (route.name === 'ProductList') {
       navigation.setParams({ searchQuery: undefined });
     }

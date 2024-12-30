@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Platform, Linking } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, ScrollView, StyleSheet, Alert, Platform, Linking, Keyboard } from 'react-native';
 import { Appbar, Button, List, Text, TextInput, Divider } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { useAuth } from '@/providers/AuthProvider';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -27,7 +27,23 @@ export function ProfileScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleEmailLogin = async () => {
+  // Dismiss keyboard when screen loses focus
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (Platform.OS === 'ios') {
+          Keyboard.dismiss();
+        }
+      };
+    }, [])
+  );
+
+  const handleSignIn = useCallback(async () => {
+    Keyboard.dismiss();
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
     try {
       setLoading(true);
       await signIn(email, password);
@@ -37,7 +53,7 @@ export function ProfileScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, password]);
 
   const handleLogout = async () => {
     try {
@@ -137,7 +153,7 @@ export function ProfileScreen() {
 
               <Button
                 mode="contained"
-                onPress={handleEmailLogin}
+                onPress={handleSignIn}
                 loading={loading}
                 style={styles.button}
               >

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, StyleSheet, Alert, Platform } from 'react-native';
+import { View, StyleSheet, Alert, Platform, Keyboard } from 'react-native';
 import { Button, TextInput, Text, Divider, useTheme, Appbar } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
@@ -113,8 +113,12 @@ export function SignupScreen({ navigation }: Props) {
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <Animated.View entering={FadeInDown.duration(400).springify()}>
+        <Animated.View 
+          entering={FadeInDown.duration(400).springify()}
+          onTouchStart={() => Keyboard.dismiss()}
+        >
           <Text variant="headlineMedium" style={styles.title}>
             Create Your Account
           </Text>

@@ -347,9 +347,12 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
           backgroundStyle={styles.background}
           topInset={insets.top}
           enableContentPanningGesture={true}
-          keyboardBehavior="extend"
-          keyboardBlurBehavior="restore"
+          keyboardBehavior="interactive"
           android_keyboardInputMode="adjustResize"
+          onClose={() => {
+            Keyboard.dismiss();
+            onDismiss();
+          }}
         >
           <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom + 16 }]}>
             {/* Header */}
