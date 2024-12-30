@@ -91,7 +91,7 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
         />
         <View style={styles.headerRightButtons}>
           <IconButton
-            icon="share-variant"
+            icon="share"
             iconColor="white"
             size={24}
             onPress={handleShare}

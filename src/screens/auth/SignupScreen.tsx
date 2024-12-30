@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   loginLink: {
-    marginTop: 8,
+    marginVertical: 8
   },
   socialButtons: {
     gap: 12,

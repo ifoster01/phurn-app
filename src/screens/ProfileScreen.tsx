@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert, Platform, Linking } from 'react-native';
 import { Appbar, Button, List, Text, TextInput, Divider } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { useAuth } from '@/providers/AuthProvider';
@@ -124,7 +124,12 @@ export function ProfileScreen() {
 
               <Button
                 mode="text"
-                onPress={() => {}}
+                onPress={async () => {
+                  const supported = await Linking.canOpenURL('https://phurn.store/forgot-password')
+                  if (supported) {
+                    Linking.openURL('https://phurn.store/forgot-password')
+                  }
+                }}
                 style={styles.forgotPassword}
               >
                 Forgot Password?
