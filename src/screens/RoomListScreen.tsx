@@ -21,22 +21,27 @@ const roomCategories: Category[] = [
   { 
     id: 'bedroom', 
     title: 'Bedroom', 
-    image: require('@/assets/images/categories/bedroom-img.png')
+    image: require('@/assets/images/categories/bedroom-img.jpg')
   },
   { 
     id: 'dining-room', 
     title: 'Dining & Kitchen', 
-    image: require('@/assets/images/categories/dining-img.png')
+    image: require('@/assets/images/categories/dining-img.jpg')
   },
   { 
     id: 'living-room', 
     title: 'Living Room',
-    image: require('@/assets/images/categories/shop-by-room.png')
+    image: require('@/assets/images/categories/shop-by-room.jpg')
   },
   { 
     id: 'office',
     title: 'Home Office', 
-    image: require('@/assets/images/categories/office-img.png')
+    image: require('@/assets/images/categories/office-img.jpg')
+  },
+  { 
+    id: 'outdoor',
+    title: 'Outdoor', 
+    image: require('@/assets/images/categories/outdoor-img.jpg')
   },
 ];
 
@@ -48,7 +53,9 @@ export function RoomListScreen({ navigation }: Props) {
     addRoom(roomId); // Add the selected room
     navigation.navigate('CategoryList', {
       category: 'room',
-      subcategory: roomId
+      subcategory: roomId,
+      image: roomCategories.find(category => category.id === roomId)?.image,
+      title: roomCategories.find(category => category.id === roomId)?.title || ''
     });
   };
 

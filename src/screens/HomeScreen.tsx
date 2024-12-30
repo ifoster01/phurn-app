@@ -23,31 +23,31 @@ const categories: Category[] = [
   { 
     id: 'new', 
     title: 'New',
-    image: require('@/assets/images/categories/new-image.png'),
+    image: require('@/assets/images/categories/new-image.jpg'),
     type: 'filter'
   },
   { 
     id: 'deals', 
     title: 'Best Deals', 
-    image: require('@/assets/images/categories/best-deals.jpeg'),
+    image: require('@/assets/images/categories/best-deals.jpg'),
     type: 'filter'
   },
   { 
     id: 'type', 
     title: 'Shop By Type', 
-    image: require('@/assets/images/categories/shop-by-type.jpeg'),
+    image: require('@/assets/images/categories/shop-by-type.jpg'),
     type: 'navigation'
   },
   { 
     id: 'room', 
     title: 'Shop By Room', 
-    image: require('@/assets/images/categories/shop-by-room.png'),
+    image: require('@/assets/images/categories/shop-by-room.jpg'),
     type: 'navigation'
   },
   { 
     id: 'brand',
     title: 'Shop By Brand', 
-    image: require('@/assets/images/categories/brand-img.jpeg'),
+    image: require('@/assets/images/categories/brand-img.jpg'),
     type: 'navigation'
   }
 ];
@@ -74,7 +74,9 @@ export function HomeScreen({ navigation }: Props) {
         navigation.navigate('RoomList');
       } else {
         navigation.navigate('CategoryList', {
-          category: categoryId
+          category: categoryId,
+          image: categories.find(category => category.id === categoryId)?.image,
+          title: categories.find(category => category.id === categoryId)?.title || ''
         });
       }
     }

@@ -64,7 +64,7 @@ export function ProductCard({
             <View style={styles.priceContainer}>
               <Text style={{
                 ...styles.price,
-                color: hasDiscount ? '#EA3A00' : '#000000',
+                color: hasDiscount ? '#EA3A00' : '#1B1B1B',
               }}>{price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</Text>
               {hasDiscount && (
                 <Text style={styles.regPrice}>${regPrice}</Text>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 4,
-    color: '#000000',
+    color: '#1B1B1B',
   },
   priceContainer: {
     flexDirection: 'row',
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000000',
+    color: '#1B1B1B',
   },
   regPrice: {
     fontSize: 12,

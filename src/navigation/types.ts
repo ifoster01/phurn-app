@@ -2,6 +2,7 @@ import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-naviga
 import { BottomTabNavigationProp, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeNavigationProp, RouteProp, CompositeScreenProps } from '@react-navigation/native';
 import type { Furniture } from '@/hooks/api/useFurniture';
+import { ImageSourcePropType } from 'react-native';
 
 export type TabParamList = {
   Home: {
@@ -54,7 +55,7 @@ export type TabScreenProps<T extends keyof TabParamList> =
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
-  CategoryList: { category: string; subcategory?: string };
+  CategoryList: { category: string; subcategory?: string, image?: ImageSourcePropType, title?: string };
   ProductList: { category?: string; subcategory?: string; searchQuery?: string };
   RoomList: undefined;
   Product: { furniture: Furniture };

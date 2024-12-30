@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     height: '100%',
     paddingVertical: 8,
-    color: '#000000',
+    color: '#1B1B1B',
   },
   clearButton: {
     margin: 0,

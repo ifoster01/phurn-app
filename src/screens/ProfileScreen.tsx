@@ -85,7 +85,7 @@ export function ProfileScreen() {
                 autoComplete="email"
                 outlineColor="#CCCCCC"
                 activeOutlineColor="#EA3A00"
-                textColor="#000000"
+                textColor="#1B1B1B"
                 theme={{
                   colors: {
                     background: '#FFFFFF',
@@ -105,7 +105,7 @@ export function ProfileScreen() {
                 autoComplete="password"
                 outlineColor="#CCCCCC"
                 activeOutlineColor="#EA3A00"
-                textColor="#000000"
+                textColor="#1B1B1B"
                 theme={{
                   colors: {
                     background: '#FFFFFF',

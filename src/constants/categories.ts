@@ -5,9 +5,9 @@ interface CategoryItem {
 }
 
 export type CategoryType = 'new' | 'deals' | 'type' | 'brand' | 'room';
-export type RoomType = 'bedroom' | 'dining-room' | 'living-room' | 'office';
+export type RoomType = 'bedroom' | 'dining-room' | 'living-room' | 'office' | 'outdoor';
 export const CategoryEnum = ['new', 'deals', 'type', 'brand', 'room'] as const;
-export const RoomEnum = ['living-room', 'bedroom', 'dining-room', 'office'] as const;
+export const RoomEnum = ['living-room', 'bedroom', 'dining-room', 'office', 'outdoor'] as const;
 
 export const categories: Record<CategoryType, CategoryItem[]> = {
   new: [
@@ -79,6 +79,12 @@ export const roomCategories: Record<RoomType, CategoryItem[]> = {
     { id: 'filing', title: 'Filing & Storage' },
     { id: 'office-chairs', title: 'Office Chairs' },
   ],
+  'outdoor': [
+    { id: 'all-furniture', title: 'All Furniture' },
+    { id: 'outdoor-chairs', title: 'Outdoor Chairs' },
+    { id: 'outdoor-sofas', title: 'Outdoor Sofas' },
+    { id: 'outdoor-tables', title: 'Outdoor Tables' },
+  ],
 };
 
 export const subCategoryMap = {
@@ -146,6 +152,7 @@ export const subcategory_map = {
   'sofa beds': 'sofa bed',
   'end and side tables': 'side table',
   'bar & counter stools': 'stool',
+  'outdoor tables': 'outdoor table',
   'dressers': 'dresser',
   'chairs': 'chair',
   'sofas': 'sofa',
@@ -165,4 +172,5 @@ export const room_map = {
   'bedroom': 'bedroom',
   'dining-room': 'dining',
   'office': 'office',
+  'outdoor': 'outdoor',
 } as const;

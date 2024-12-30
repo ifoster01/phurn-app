@@ -20,7 +20,7 @@ export function CategoryCard({ title, image, onPress }: Props) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.imageContainer}>
-        <ImageBackground 
+        <ImageBackground
           source={image} 
           style={styles.image}
           imageStyle={styles.backgroundImage}

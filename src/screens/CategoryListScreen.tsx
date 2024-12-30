@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, ImageBackground, Text } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
@@ -13,7 +13,7 @@ import { FurnitureType } from '@/stores/useProductFilterStore';
 type Props = NativeStackScreenProps<HomeStackParamList, 'CategoryList'>;
 
 export function CategoryListScreen({ navigation, route }: Props) {
-  const { category, subcategory } = route.params;
+  const { category, subcategory, image, title } = route.params;
   const { 
     addRoom,
     addFurnitureType,
@@ -103,11 +103,28 @@ export function CategoryListScreen({ navigation, route }: Props) {
   return (
     <SafeAreaWrapper>
       <Appbar.Header style={{ marginTop: -44 }}>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={`Shop By ${categoryTitle}`} />
+        <Appbar.BackAction color="#1B1B1B" onPress={() => navigation.goBack()} />
+        <Appbar.Content
+          title={ category === 'room' ? `${categoryTitle}` : `Shop By ${categoryTitle}`}
+          titleStyle={{ color: '#1B1B1B' }}
+        />
       </Appbar.Header>
       <SearchBar />
       <ScrollView style={styles.container}>
+        { image && <View style={styles.outerImageContainer}>
+          <View style={styles.imageContainer}>
+            <ImageBackground
+              source={image}
+              style={styles.image}
+              imageStyle={styles.backgroundImage}
+              resizeMode="cover"
+            >
+              <View style={styles.titleContainer}>
+                <Text style={styles.title}>{title}</Text>
+              </View>
+            </ImageBackground>
+          </View>
+        </View> }
         {items.map((item) => (
           <CategoryListItem
             key={item.id}
@@ -123,11 +140,55 @@ export function CategoryListScreen({ navigation, route }: Props) {
 
 // Type guard to check if a string is a valid RoomType
 function isRoomType(value: string): value is RoomType {
-  return ['living-room', 'bedroom', 'dining-room', 'office'].includes(value);
+  return ['living-room', 'bedroom', 'dining-room', 'office', 'outdoor'].includes(value);
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  outerImageContainer: {
+    height: 200,
+    marginVertical: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  imageContainer: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  image: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  titleContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  title: {
+    fontSize: 32,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
 });
