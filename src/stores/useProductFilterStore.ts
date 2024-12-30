@@ -256,7 +256,7 @@ export const useProductFilterStore = create<ProductFilterState>()(
       },
       
       getFilterSummary: () => {
-        const { filterCategories, selectedRooms, selectedFurnitureTypes, selectedBrands } = get()
+        const { filterCategories, selectedRooms, selectedFurnitureTypes, selectedBrands, minPrice, maxPrice } = get()
         const parts: string[] = []
         
         filterCategories.forEach(category => {
@@ -274,6 +274,10 @@ export const useProductFilterStore = create<ProductFilterState>()(
         selectedBrands.forEach(brand => {
           parts.push(brand)
         })
+
+        if (minPrice || maxPrice) {
+          parts.push(`$${minPrice ?? '0'} - $${maxPrice ?? 'inf'}`)
+        }
         
         return parts
       },

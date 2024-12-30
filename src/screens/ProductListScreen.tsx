@@ -38,7 +38,8 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
   const hideFilterDrawer = useCallback(() => setFilterDrawerVisible(false), []);
   
   const {
-    filterCategories
+    filterCategories,
+    getFilterSummary
   } = useProductFilter();
 
   const { 
@@ -53,6 +54,7 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
   } = useFurniture({ searchQuery });
 
   const { data: wishlistData } = useWishlists();
+  const filterSummary = getFilterSummary();
 
   const getScreenTitle = useCallback((): string => {
     if (searchQuery) {
@@ -112,7 +114,17 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
   ), [isInWishlist, handleFavoritePress, navigation]);
 
   const renderHeader = () => {
-    if (!searchQuery) return null;
+    if (!searchQuery) return (
+      <Animated.View
+        entering={SlideInRight.duration(400)} 
+        style={styles.searchInfo}
+      >
+        <Text variant="bodySmall" style={styles.resultCount}>
+          {filterSummary.length === 1 ? `${filterSummary.length} filter applied` : `${filterSummary.length} filters applied`}
+        </Text>
+      </Animated.View>
+    )
+
     return (
       <Animated.View 
         entering={SlideInRight.duration(400)} 
@@ -123,12 +135,15 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
           closeIcon={() => <Icon source="close" size={16} color="#666666" />}
           onClose={() => navigation.setParams({ searchQuery: undefined })}
           style={styles.searchChip}
-          textStyle={{ color: '#666666' }}
+          textStyle={{ color: '#666666', overflow: 'hidden', textOverflow: 'ellipsis' }}
         >
           {searchQuery}
         </Chip>
         <Text variant="bodySmall" style={styles.resultCount}>
           {data?.pages[0]?.totalCount ?? 0} results found
+        </Text>
+        <Text variant="bodySmall" style={styles.resultCount}>
+          {filterSummary.length === 1 ? `${filterSummary.length} filter applied` : `${filterSummary.length} filters applied`}
         </Text>
       </Animated.View>
     );
@@ -277,6 +292,7 @@ const styles = StyleSheet.create({
   },
   searchChip: {
     backgroundColor: '#F0F0F0',
+    maxWidth: 150,
   },
   resultCount: {
     color: '#666',
