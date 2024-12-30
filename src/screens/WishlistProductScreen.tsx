@@ -258,6 +258,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#1B1B1B',
   },
   description: {
     fontSize: 16,

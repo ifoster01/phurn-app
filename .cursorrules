@@ -79,9 +79,9 @@ const uiConfig = {
       success: '#00C853',  // Added success color
       warning: '#FF9800',  // Added warning color
       info: '#2196F3',     // Added info color
-      text: '#000000',
+      text: '#1B1B1B',
       onBackground: '#000000',
-      onSurface: '#000000',
+      onSurface: '#1B1B1B',
     }
   },
   components: {

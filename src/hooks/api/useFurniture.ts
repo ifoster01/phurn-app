@@ -89,7 +89,7 @@ export function useFurniture(params?: FurnitureQueryParams) {
       if (selectedFurnitureTypes.length > 0) {
         const typeConditions = selectedFurnitureTypes.map(type => {
           const formattedType = subcategory_map[type];
-          return `furniture_type.eq.${formattedType}`;
+          return `furniture_type.ilike.%${formattedType}%`;
         });
         query = query.or(typeConditions.join(','));
       }

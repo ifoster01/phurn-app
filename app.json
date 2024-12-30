@@ -8,6 +8,11 @@
     "scheme": "phurn",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F34F23"
+    },
     "ios": {
       "usesAppleSignIn": true,
       "supportsTablet": true,

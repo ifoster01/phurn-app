@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, ImageSourcePropType, View, Text } from 'react-native';
+import { ScrollView, StyleSheet, ImageSourcePropType, Text } from 'react-native';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { SearchBar } from '@/components/common/SearchBar';
 import { CategoryCard } from '@/components/home/CategoryCard';

@@ -72,20 +72,6 @@ export function ProfileScreen() {
             <Text style={styles.subtitle}>
               Create an account or sign in to save your favorite items and create wishlists
             </Text>
-            
-            <View style={styles.socialButtons}>
-              <Animated.View entering={FadeInDown.delay(100).springify()}>
-                <GoogleButton />
-              </Animated.View>
-              {Platform.OS === 'ios' && (
-                <Animated.View entering={FadeInDown.delay(200).springify()}>
-                  <AppleButton />
-                </Animated.View>
-              )}
-            </View>
-
-            <Divider style={styles.divider} />
-            <Text style={styles.orText}>or continue with email</Text>
 
             <Animated.View entering={FadeInDown.delay(300).springify()}>
               <TextInput
@@ -137,15 +123,6 @@ export function ProfileScreen() {
               />
 
               <Button
-                mode="contained"
-                onPress={handleEmailLogin}
-                loading={loading}
-                style={styles.button}
-              >
-                Sign In
-              </Button>
-
-              <Button
                 mode="text"
                 onPress={() => {}}
                 style={styles.forgotPassword}
@@ -154,13 +131,38 @@ export function ProfileScreen() {
               </Button>
 
               <Button
-                mode="text"
-                onPress={() => navigation.navigate('Signup' as never)}
-                style={styles.signupLink}
+                mode="contained"
+                onPress={handleEmailLogin}
+                loading={loading}
+                style={styles.button}
               >
-                Don't have an account? Sign Up
+                Sign In
               </Button>
             </Animated.View>
+
+            <Divider style={styles.divider} />
+            <Text style={styles.orText}>or continue with email</Text>
+
+            <View style={styles.socialButtons}>
+              <Animated.View entering={FadeInDown.delay(100).springify()}>
+                <GoogleButton />
+              </Animated.View>
+              {Platform.OS === 'ios' && (
+                <Animated.View entering={FadeInDown.delay(200).springify()}>
+                  <AppleButton />
+                </Animated.View>
+              )}
+            </View>
+
+            <Button
+              mode="text"
+              onPress={() => navigation.navigate('Signup' as never)}
+              style={styles.signupLink}
+            >
+              <Text style={{ fontSize: 16, color: '#FF3B30', fontWeight: 600 }}>
+                Don't have an account? Sign Up
+              </Text>
+            </Button>
           </Animated.View>
         </ScrollView>
       </SafeAreaWrapper>
@@ -268,9 +270,11 @@ const styles = StyleSheet.create({
     borderColor: '#FF3B30',
   },
   forgotPassword: {
-    marginTop: 8,
+    marginTop: -8,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
   },
   signupLink: {
-    marginTop: 8,
+    marginTop: 16,
   },
 });

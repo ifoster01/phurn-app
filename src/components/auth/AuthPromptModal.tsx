@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Modal, Portal, Text, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface AuthPromptModalProps {
   visible: boolean;

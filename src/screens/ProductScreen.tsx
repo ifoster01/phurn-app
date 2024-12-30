@@ -74,8 +74,7 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
     ? Math.round((1 - furniture.current_price / furniture.regular_price) * 100)
     : 0;
 
-  const pattern = /<a [^>]*>(.*?)<\/a>/g;
-  const cleanDescription = furniture.description?.replace(pattern, '$1');
+  const cleanDescription = furniture.description?.replace(/<[^>]*>/g, "");
 
   return (
     <View style={styles.container}>
@@ -128,7 +127,7 @@ export function ProductScreen({ navigation, route }: Props): React.JSX.Element {
             <View style={styles.priceContainer}>
               <Text style={{
                 ...styles.price,
-                color: furniture.current_price && furniture.current_price < (furniture.regular_price ?? 0) ? '#EF5350' : theme.colors.onSurface,
+                color: furniture.current_price && furniture.current_price < (furniture.regular_price ?? 0) ? '#EF5350' : '#1B1B1B',
               }}>
                 {furniture.current_price ? furniture.current_price.toLocaleString("en-US", {currency: "USD", style: "currency"}) : 'N/A'}
               </Text>

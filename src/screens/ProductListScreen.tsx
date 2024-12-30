@@ -38,7 +38,7 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
   const hideFilterDrawer = useCallback(() => setFilterDrawerVisible(false), []);
   
   const {
-    filterCategories,
+    filterCategories
   } = useProductFilter();
 
   const { 

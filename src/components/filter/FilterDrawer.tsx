@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Portal, Text, Button, useTheme, Chip, Divider, RadioButton, TextInput } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { FILTER_NAMES, FilterCategory, FurnitureType, PriceSortType, DiscountSortType, SORT_NAMES, useProductFilterStore } from '@/stores/useProductFilterStore';
@@ -19,9 +20,9 @@ interface FormValues {
   maxPrice: string;
 }
 
-// Get screen height and adjust for safe area
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.85; // Slightly increased for better visibility
+// Get screen dimensions and adjust for safe area
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const MAX_DRAWER_HEIGHT = SCREEN_HEIGHT * 0.9;
 
 const FILTER_CATEGORIES: FilterCategory[] = ['new', 'clearance'];
 const ROOM_TYPES = Object.keys(roomCategories) as RoomType[];
@@ -85,11 +86,11 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     }
   }, 300);
 
-  // Calculate snap points accounting for safe areas
+  // Calculate snap points with proper dimensions
   const snapPoints = useMemo(() => {
-    const availableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
+    const availableHeight = SCREEN_HEIGHT - insets.top;
     return [Math.min(MAX_DRAWER_HEIGHT, availableHeight)];
-  }, [insets]);
+  }, [insets.top]);
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
@@ -97,6 +98,7 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     }
   }, [onDismiss]);
 
+  // Enhanced backdrop for better touch handling
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -104,14 +106,19 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.5}
+        pressBehavior="close"
       />
     ),
     []
   );
 
+  // Reset position when visibility changes
   useEffect(() => {
     if (visible) {
-      bottomSheetRef.current?.expand();
+      // Small delay to ensure proper animation
+      setTimeout(() => {
+        bottomSheetRef.current?.expand();
+      }, 100);
     } else {
       bottomSheetRef.current?.close();
     }
@@ -158,6 +165,8 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
     clearSorting();
     setValue('minPrice', '');
     setValue('maxPrice', '');
+    setMinPrice(null);
+    setMaxPrice(null);
   };
 
   const renderFilterSection = <T extends string>(
@@ -325,18 +334,24 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
 
   return (
     <Portal>
-      <GestureHandlerRootView style={styles.container}>
+      <GestureHandlerRootView style={[styles.container, { width: SCREEN_WIDTH }]}>
         <BottomSheet
           ref={bottomSheetRef}
-          index={-1}
+          index={visible ? 0 : -1}
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           backdropComponent={renderBackdrop}
           enablePanDownToClose
           handleIndicatorStyle={styles.handleIndicator}
+          handleStyle={styles.handle}
+          backgroundStyle={styles.background}
           topInset={insets.top}
+          enableContentPanningGesture={true}
+          keyboardBehavior="extend"
+          keyboardBlurBehavior="restore"
+          android_keyboardInputMode="adjustResize"
         >
-          <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
+          <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom + 16 }]}>
             {/* Header */}
             <View style={styles.header}>
               <Text variant="titleLarge" style={styles.title}>
@@ -350,68 +365,69 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
             </View>
 
             {/* Scrollable Content */}
-            <ScrollView 
-              style={styles.scrollView} 
+            <ScrollView
+              style={styles.scrollView}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollViewContent}
+              keyboardShouldPersistTaps="handled"
             >
-              {/* Sorting Section */}
-              {renderSortingSection()}
-              
-              <Divider style={styles.divider} />
+                {/* Sorting Section */}
+                {renderSortingSection()}
+                
+                <Divider style={styles.divider} />
 
-              {/* Price Range Section */}
-              {renderPriceRangeSection()}
-              
-              <Divider style={styles.divider} />
+                {/* Price Range Section */}
+                {renderPriceRangeSection()}
+                
+                <Divider style={styles.divider} />
 
-              {/* Special Filters */}
-              {renderFilterSection(
-                'Special',
-                FILTER_CATEGORIES,
-                filterCategories,
-                handleFilterPress,
-                (filter) => FILTER_NAMES[filter]
-              )}
-              
-              <Divider style={styles.divider} />
-              
-              {/* Room Filters */}
-              {renderFilterSection(
-                'Room',
-                ROOM_TYPES,
-                selectedRooms,
-                handleRoomPress,
-                (room) => room.split('-').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
-              
-              <Divider style={styles.divider} />
+                {/* Special Filters */}
+                {renderFilterSection(
+                  'Special',
+                  FILTER_CATEGORIES,
+                  filterCategories,
+                  handleFilterPress,
+                  (filter) => FILTER_NAMES[filter]
+                )}
+                
+                <Divider style={styles.divider} />
+                
+                {/* Room Filters */}
+                {renderFilterSection(
+                  'Room',
+                  ROOM_TYPES,
+                  selectedRooms,
+                  handleRoomPress,
+                  (room) => room.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
+                
+                <Divider style={styles.divider} />
 
-              {/* Brand Filters */}
-              {renderFilterSection(
-                'Brand',
-                BRANDS,
-                selectedBrands,
-                handleBrandPress,
-                (brand) => brand.split('-').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
-              
-              <Divider style={styles.divider} />
-              
-              {/* Furniture Type Filters */}
-              {renderFilterSection(
-                'Furniture Type',
-                FURNITURE_TYPES,
-                selectedFurnitureTypes,
-                handleFurnitureTypePress,
-                (type) => type.split(' ').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')
-              )}
+                {/* Brand Filters */}
+                {renderFilterSection(
+                  'Brand',
+                  BRANDS,
+                  selectedBrands,
+                  handleBrandPress,
+                  (brand) => brand.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
+                
+                <Divider style={styles.divider} />
+                
+                {/* Furniture Type Filters */}
+                {renderFilterSection(
+                  'Furniture Type',
+                  FURNITURE_TYPES,
+                  selectedFurnitureTypes,
+                  handleFurnitureTypePress,
+                  (type) => type.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
             </ScrollView>
 
             {/* Footer */}
@@ -434,10 +450,34 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  background: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  handle: {
+    paddingTop: 8,
+    paddingBottom: 4,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   contentContainer: {
     flex: 1,
-    paddingBottom: 16,
+    paddingBottom: 32,
   },
   header: {
     flexDirection: 'row',
@@ -453,9 +493,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingBottom: 16,
   },
   scrollViewContent: {
     padding: 16,
+    paddingBottom: 32,
   },
   sectionTitle: {
     marginBottom: 8,

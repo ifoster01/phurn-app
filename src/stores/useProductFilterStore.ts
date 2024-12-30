@@ -264,11 +264,11 @@ export const useProductFilterStore = create<ProductFilterState>()(
         })
         
         selectedRooms.forEach(room => {
-          parts.push(room.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join(' '))
+          parts.push(room_map[room])
         })
         
         selectedFurnitureTypes.forEach(type => {
-          parts.push(type.split(' ').map(word => word[0].toUpperCase() + word.slice(1)).join(' '))
+          parts.push(type)
         })
         
         selectedBrands.forEach(brand => {

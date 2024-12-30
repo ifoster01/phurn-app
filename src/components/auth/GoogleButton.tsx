@@ -2,9 +2,6 @@ import React, { useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { Button } from 'react-native-paper'
 import { lightTheme } from '../../theme'
-import { env } from '@/config/env'
-import * as Google from 'expo-auth-session/providers/google'
-import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/providers/AuthProvider'
 
 export const GoogleButton = () => {

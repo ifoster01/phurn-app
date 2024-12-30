@@ -119,10 +119,12 @@ const styles = StyleSheet.create({
   clearButton: {
     margin: 0,
     padding: 0,
+    backgroundColor: 'transparent',
   },
   searchButton: {
     margin: 0,
     marginLeft: -8,
     padding: 0,
+    backgroundColor: 'transparent',
   },
 });

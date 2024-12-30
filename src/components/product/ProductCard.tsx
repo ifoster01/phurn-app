@@ -60,7 +60,7 @@ export function ProductCard({
           </View>
           <View style={styles.content}>
             <Text numberOfLines={1} style={styles.brand}>{brand}</Text>
-            <Text numberOfLines={2} style={styles.title}>{title}</Text>
+            <Text numberOfLines={2} style={styles.title}>{title.replace('\\', '"')}</Text>
             <View style={styles.priceContainer}>
               <Text style={{
                 ...styles.price,
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    borderRadius: 12,
   },
   favoriteButton: {
     position: 'absolute',
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     lineHeight: 20,
-    marginBottom: 8,
+    marginBottom: 4,
     color: '#000000',
   },
   priceContainer: {

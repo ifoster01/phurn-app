@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Platform } from 'react-native';
+import { View, StyleSheet, Alert, Platform } from 'react-native';
 import { Button, TextInput, Text, Divider, useTheme, Appbar } from 'react-native-paper';
+import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaWrapper } from '@/components/layout/SafeAreaWrapper';
 import { useAuth } from '@/providers/AuthProvider';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -108,7 +109,11 @@ export function SignupScreen({ navigation }: Props) {
         <Appbar.Content title="Create Account" />
       </Appbar.Header>
 
-      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         <Animated.View entering={FadeInDown.duration(400).springify()}>
           <Text variant="headlineMedium" style={styles.title}>
             Create Your Account
@@ -117,21 +122,27 @@ export function SignupScreen({ navigation }: Props) {
             Sign up to save your favorite items and create wishlists
           </Text>
 
-          <View style={styles.socialButtons}>
-            <Animated.View entering={FadeInDown.delay(100).springify()}>
-              <GoogleButton />
-            </Animated.View>
-            {Platform.OS === 'ios' && (
-              <Animated.View entering={FadeInDown.delay(200).springify()}>
-                <AppleButton />
-              </Animated.View>
-            )}
-          </View>
-
-          <Divider style={styles.divider} />
-          <Text style={styles.orText}>or continue with email</Text>
-
           <Animated.View entering={FadeInDown.delay(300).springify()}>
+            <TextInput
+              label="Full Name"
+              value={fullName}
+              onChangeText={setFullName}
+              mode="outlined"
+              style={styles.input}
+              autoCapitalize="words"
+              autoComplete="name"
+              outlineColor="#CCCCCC"
+              activeOutlineColor="#EA3A00"
+              textColor="#000000"
+              theme={{
+                colors: {
+                  background: '#FFFFFF',
+                  placeholder: '#666666',
+                  onSurfaceVariant: '#666666',
+                }
+              }}
+            />
+
             <TextInput
               label="Email"
               value={email}
@@ -180,6 +191,33 @@ export function SignupScreen({ navigation }: Props) {
               }
             />
 
+            <TextInput
+              label="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              mode="outlined"
+              style={styles.input}
+              secureTextEntry={!showConfirmPassword}
+              autoComplete="password"
+              outlineColor="#CCCCCC"
+              activeOutlineColor="#EA3A00"
+              textColor="#000000"
+              theme={{
+                colors: {
+                  background: '#FFFFFF',
+                  placeholder: '#666666',
+                  onSurfaceVariant: '#666666',
+                }
+              }}
+              right={
+                <TextInput.Icon
+                  icon={showConfirmPassword ? "eye-off" : "eye"}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  color="#666666"
+                />
+              }
+            />
+
             <Button
               mode="contained"
               onPress={handleSignup}
@@ -188,15 +226,29 @@ export function SignupScreen({ navigation }: Props) {
             >
               Create Account
             </Button>
-
-            <Button
-              mode="text"
-              onPress={() => navigation.goBack()}
-              style={styles.loginLink}
-            >
-              Already have an account? Sign In
-            </Button>
           </Animated.View>
+
+          <Divider style={styles.divider} />
+          <Text style={styles.orText}>or continue with email</Text>
+
+          <View style={styles.socialButtons}>
+            <Animated.View entering={FadeInDown.delay(100).springify()}>
+              <GoogleButton />
+            </Animated.View>
+            {Platform.OS === 'ios' && (
+              <Animated.View entering={FadeInDown.delay(200).springify()}>
+                <AppleButton />
+              </Animated.View>
+            )}
+          </View>
+
+          <Button
+            mode="text"
+            onPress={() => navigation.goBack()}
+            style={styles.loginLink}
+          >
+            Already have an account? Sign In
+          </Button>
         </Animated.View>
       </ScrollView>
     </SafeAreaWrapper>

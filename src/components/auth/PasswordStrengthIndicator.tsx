@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { View, StyleSheet } from 'react-native'
-import { Text, useTheme } from 'react-native-paper'
+import { Text } from 'react-native-paper'
 import { MotiView } from 'moti'
 
 type Requirement = {
@@ -10,8 +10,6 @@ type Requirement = {
 }
 
 export const PasswordStrengthIndicator = ({ password = '' }: { password: string }) => {
-  const theme = useTheme()
-
   const requirements = useMemo(() => {
     const reqs: Requirement[] = [
       {

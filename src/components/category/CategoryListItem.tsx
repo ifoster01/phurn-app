@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { List, useTheme } from 'react-native-paper';
 import { subCategoryMap } from '@/constants/categories';
@@ -13,6 +13,7 @@ type CategoryType = keyof typeof subCategoryMap;
 
 export function CategoryListItem({ title, onPress, hasSubcategories = false }: Props) {
   const theme = useTheme();
+  const [isExpanded, setIsExpanded] = useState(false);
   const categoryKey = title.replace(/\s+/g, '') as CategoryType;
   const subCategories = hasSubcategories ? subCategoryMap[categoryKey] || [] : [];
 
@@ -20,7 +21,12 @@ export function CategoryListItem({ title, onPress, hasSubcategories = false }: P
     return (
       <List.Accordion
         title={title}
-        style={styles.accordion}
+        style={[
+          styles.accordion,
+          !isExpanded && styles.borderBottom
+        ]}
+        expanded={isExpanded}
+        onPress={() => setIsExpanded(!isExpanded)}
         titleStyle={styles.title}
         theme={{
           ...theme,
@@ -30,12 +36,12 @@ export function CategoryListItem({ title, onPress, hasSubcategories = false }: P
           },
         }}
       >
-        {subCategories.map((subCategory) => (
+        {subCategories.map((subCategory, index) => (
           <List.Item
             key={subCategory}
             title={subCategory}
             onPress={() => onPress(subCategory.toLowerCase())}
-            style={styles.subItem}
+            style={[styles.subItem, isExpanded && index === subCategories.length - 1 && styles.borderBottom]}
             titleStyle={styles.subItemTitle}
             right={props => <List.Icon {...props} icon="chevron-right" />}
           />
@@ -58,6 +64,8 @@ export function CategoryListItem({ title, onPress, hasSubcategories = false }: P
 const styles = StyleSheet.create({
   accordion: {
     backgroundColor: '#FFFFFF',
+  },
+  borderBottom: {
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
@@ -73,7 +81,7 @@ const styles = StyleSheet.create({
   },
   subItem: {
     paddingLeft: 32,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FFFFFF',
   },
   subItemTitle: {
     fontSize: 14,

@@ -218,7 +218,7 @@ export function WishListsScreen() {
         entering={FadeIn.duration(400)} 
         style={styles.container}
       >
-        <Text variant="headlineMedium" style={styles.title}>
+        <Text variant="headlineSmall" style={styles.title}>
           Wish Lists
         </Text>
 
@@ -319,8 +319,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    marginBottom: 8,
-    color: '#E85D3F',
+    marginBottom: 32,
+    textAlign: 'center',
   },
   subtitle: {
     marginBottom: 24,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   wishlistHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 12,
   },
   itemCount: {

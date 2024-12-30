@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Session, User as SupabaseUser } from '@supabase/supabase-js'
+import { User as SupabaseUser } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { AuthContextType, AuthState, User } from '../types/auth'
 import * as WebBrowser from 'expo-web-browser'
 import * as Google from 'expo-auth-session/providers/google'
 import * as AppleAuthentication from 'expo-apple-authentication'
-import { Platform, Linking, Alert } from 'react-native'
-import Constants from 'expo-constants'
+import { Platform, Alert } from 'react-native'
 import { env } from '../config/env'
 
 // Initialize WebBrowser for Google Auth

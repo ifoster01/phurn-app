@@ -1,5 +1,5 @@
 import { useAuth } from '@/providers/AuthProvider'
-import React, { useState } from 'react'
+import React from 'react'
 import { StyleSheet } from 'react-native'
 import { Button } from 'react-native-paper'
 import { useTheme } from 'react-native-paper'

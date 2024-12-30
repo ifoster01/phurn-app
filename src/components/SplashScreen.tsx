@@ -7,10 +7,17 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete }) => {
-  const orangeOpacity = React.useRef(new Animated.Value(1)).current;
+  const orangeOpacity = React.useRef(new Animated.Value(0)).current;
   const whiteOpacity = React.useRef(new Animated.Value(1)).current;
 
   React.useEffect(() => {
+    // First fade in
+    Animated.timing(orangeOpacity, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+
     const timer = setTimeout(() => {
       // First fade orange to white
       Animated.timing(orangeOpacity, {
