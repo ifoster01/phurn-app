@@ -37,9 +37,6 @@ export function HomeNavigator() {
         options={{
           title: 'Categories'
         }}
-        listeners={{
-          focus: () => clearAll()
-        }}
       />
       <Stack.Screen 
         name="ProductList" 
@@ -53,9 +50,6 @@ export function HomeNavigator() {
         component={RoomListScreen}
         options={{
           title: 'Room List'
-        }}
-        listeners={{
-          focus: () => clearAll()
         }}
       />
       <Stack.Screen 

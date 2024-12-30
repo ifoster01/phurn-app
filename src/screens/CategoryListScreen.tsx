@@ -82,7 +82,15 @@ export function CategoryListScreen({ navigation, route }: Props) {
             removeFurnitureType(furnitureType as FurnitureType);
           }
         } else {
-          addFurnitureType(itemId as FurnitureType);
+          if (itemId === 'all seating') {
+            addFurnitureType('seating')
+          } else if (itemId === 'all tables') {
+            addFurnitureType('tables')
+          } else if (itemId === 'all storage') {
+            addFurnitureType('storage')
+          } else {
+            addFurnitureType(itemId as FurnitureType);
+          }
         }
       }
       navigation.navigate('ProductList', { 

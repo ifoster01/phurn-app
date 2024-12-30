@@ -12,7 +12,6 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, TabParamList } from '@/navigation/types';
 import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 type NavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, 'Wishlists'>,
@@ -29,6 +28,7 @@ interface WishlistSectionProps {
 
 function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }: WishlistSectionProps) {
   const thumbnails = wishlist.items
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 4)
     .map(item => item.furniture.img_src_url)
     .filter(Boolean);
@@ -63,22 +63,24 @@ function WishlistSection({ wishlist, onDelete, isDeleting, onNavigate, onEdit }:
         </View>
       </View>
 
-      <View style={styles.thumbnailGrid}>
-        {thumbnails.map((url, index) => (
-          <Animated.Image
-            key={index}
-            entering={FadeIn.delay(index * 100)}
-            source={{ uri: url ?? '' }}
-            style={styles.thumbnail}
-            resizeMode="cover"
-          />
-        ))}
-        {thumbnails.length === 0 && (
-          <View style={[styles.thumbnail, styles.emptyThumbnail]}>
-            <Text variant="bodySmall" style={styles.emptyText}>No items yet</Text>
-          </View>
-        )}
-      </View>
+      <TouchableOpacity onPress={() => onNavigate(wishlist.id)}>
+        <View style={styles.thumbnailGrid}>
+          {thumbnails.map((url, index) => (
+            <Animated.Image
+              key={index}
+              entering={FadeIn.delay(index * 100)}
+              source={{ uri: url ?? '' }}
+              style={styles.thumbnail}
+              resizeMode="cover"
+            />
+          ))}
+          {thumbnails.length === 0 && (
+            <View style={[styles.thumbnail, styles.emptyThumbnail]}>
+              <Text variant="bodySmall" style={styles.emptyText}>No items yet</Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
 
       <TouchableOpacity 
         onPress={() => onDelete(wishlist.id)}
@@ -376,7 +378,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   createButton: {
-    paddingVertical: 10,
+    paddingVertical: 4,
     backgroundColor: '#E85D3F',
     borderRadius: 12,
     paddingHorizontal: 16,

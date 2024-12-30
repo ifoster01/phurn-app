@@ -384,31 +384,18 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
                 {/* Special Filters */}
                 {renderFilterSection(
                   'Special',
-                  FILTER_CATEGORIES,
+                  FILTER_CATEGORIES.sort((a, b) => a.localeCompare(b)),
                   filterCategories,
                   handleFilterPress,
                   (filter) => FILTER_NAMES[filter]
                 )}
-                
-                <Divider style={styles.divider} />
-                
-                {/* Room Filters */}
-                {renderFilterSection(
-                  'Room',
-                  ROOM_TYPES,
-                  selectedRooms,
-                  handleRoomPress,
-                  (room) => room.split('-').map(word => 
-                    word.charAt(0).toUpperCase() + word.slice(1)
-                  ).join(' ')
-                )}
-                
+
                 <Divider style={styles.divider} />
 
                 {/* Brand Filters */}
                 {renderFilterSection(
                   'Brand',
-                  BRANDS,
+                  BRANDS.sort((a, b) => a.localeCompare(b)),
                   selectedBrands,
                   handleBrandPress,
                   (brand) => brand.split('-').map(word => 
@@ -418,10 +405,23 @@ export function FilterDrawer({ visible, onDismiss }: FilterDrawerProps) {
                 
                 <Divider style={styles.divider} />
                 
+                {/* Room Filters */}
+                {renderFilterSection(
+                  'Room',
+                  ROOM_TYPES.sort((a, b) => a.localeCompare(b)),
+                  selectedRooms,
+                  handleRoomPress,
+                  (room) => room.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                )}
+                
+                <Divider style={styles.divider} />
+                
                 {/* Furniture Type Filters */}
                 {renderFilterSection(
                   'Furniture Type',
-                  FURNITURE_TYPES,
+                  FURNITURE_TYPES.sort((a, b) => a.localeCompare(b)),
                   selectedFurnitureTypes,
                   handleFurnitureTypePress,
                   (type) => type.split(' ').map(word => 

@@ -120,6 +120,9 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
         style={styles.searchInfo}
       >
         <Text variant="bodySmall" style={styles.resultCount}>
+          {data?.pages[0]?.totalCount ?? 0} results found
+        </Text>
+        <Text variant="bodySmall" style={styles.resultCount}>
           {filterSummary.length === 1 ? `${filterSummary.length} filter applied` : `${filterSummary.length} filters applied`}
         </Text>
       </Animated.View>
@@ -208,6 +211,7 @@ export function ProductListScreen({ navigation, route }: Props): React.JSX.Eleme
             style={styles.centerContainer}
           >
             <Text variant="titleMedium" style={styles.noResults}>No products found</Text>
+            <Text variant="titleMedium" style={styles.noResults}>{filterSummary.length === 1 ? `(${filterSummary.length} filter applied)` : `(${filterSummary.length} filters applied)`}</Text>
             {searchQuery && (
               <Button 
                 mode="contained" 

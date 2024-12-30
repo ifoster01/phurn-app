@@ -89,6 +89,18 @@ export function useFurniture(params?: FurnitureQueryParams) {
       if (selectedFurnitureTypes.length > 0) {
         const typeConditions = selectedFurnitureTypes.map(type => {
           const formattedType = subcategory_map[type];
+
+          if (type === 'seating') {
+            // find anything that has sofas, chairs, ottomans, benches
+            return `furniture_type.ilike.%sofa%, furniture_type.ilike.%chair%, furniture_type.ilike.%ottoman%, furniture_type.ilike.%bench%`;
+          } else if (type === 'tables') {
+            // find anything that has coffee tables, console tables, dining tables, end and side tables
+            return `furniture_type.ilike.%coffee table%, furniture_type.ilike.%console table%, furniture_type.ilike.%dining table%, furniture_type.ilike.%end and side table%`;
+          } else if (type === 'storage') {
+            // find anything that has bookcases, cabinets, credenzas, dressers, tv stands
+            return `furniture_type.ilike.%bookcase%, furniture_type.ilike.%cabinet%, furniture_type.ilike.%credenza%, furniture_type.ilike.%dresser%, furniture_type.ilike.%tv stand%`;
+          }
+
           return `furniture_type.ilike.%${formattedType}%`;
         });
         query = query.or(typeConditions.join(','));

@@ -5,7 +5,7 @@ interface CategoryItem {
 }
 
 export type CategoryType = 'new' | 'deals' | 'type' | 'brand' | 'room';
-export type RoomType = 'living-room' | 'bedroom' | 'dining-room' | 'office';
+export type RoomType = 'bedroom' | 'dining-room' | 'living-room' | 'office';
 export const CategoryEnum = ['new', 'deals', 'type', 'brand', 'room'] as const;
 export const RoomEnum = ['living-room', 'bedroom', 'dining-room', 'office'] as const;
 
@@ -51,60 +51,65 @@ export const categories: Record<CategoryType, CategoryItem[]> = {
 };
 
 export const roomCategories: Record<RoomType, CategoryItem[]> = {
-  'living-room': [
-    { id: 'all-furniture', title: 'All Furniture' },
-    { id: 'sofas', title: 'Sofas' },
-    { id: 'chairs', title: 'Chairs' },
-    { id: 'coffee-tables', title: 'Coffee Tables' },
-    { id: 'tv-stands', title: 'TV Stands' },
-  ],
   'bedroom': [
     { id: 'all-furniture', title: 'All Furniture' },
     { id: 'beds', title: 'Beds' },
-    { id: 'headboards', title: 'Headboards' },
     { id: 'dressers', title: 'Dressers' },
+    { id: 'headboards', title: 'Headboards' },
     { id: 'nightstands', title: 'Nightstands' },
   ],
   'dining-room': [
     { id: 'all-furniture', title: 'All Furniture' },
+    { id: 'bar-stools', title: 'Bar & Counter Stools' },
+    { id: 'buffets', title: 'Buffets & Sideboards' },
     { id: 'dining-tables', title: 'Dining Tables' },
     { id: 'dining-chairs', title: 'Dining Chairs' },
-    { id: 'buffets', title: 'Buffets & Sideboards' },
-    { id: 'bar-stools', title: 'Bar & Counter Stools' },
+  ],
+  'living-room': [
+    { id: 'all-furniture', title: 'All Furniture' },
+    { id: 'chairs', title: 'Chairs' },
+    { id: 'coffee-tables', title: 'Coffee Tables' },
+    { id: 'sofas', title: 'Sofas' },
+    { id: 'tv-stands', title: 'TV Stands' },
   ],
   'office': [
     { id: 'all-furniture', title: 'All Furniture' },
-    { id: 'desks', title: 'Desks' },
-    { id: 'office-chairs', title: 'Office Chairs' },
     { id: 'bookcases', title: 'Bookcases' },
+    { id: 'desks', title: 'Desks' },
     { id: 'filing', title: 'Filing & Storage' },
+    { id: 'office-chairs', title: 'Office Chairs' },
   ],
 };
 
 export const subCategoryMap = {
   Tables: [
+    'All Tables',
     'Coffee Tables',
     'Console Tables',
     'Dining Tables',
     'End and Side Tables',
   ],
   Seating: [
-    'Sofas',
+    'All Seating',
+    'Benches',
     'Chairs',
     'Ottomans',
-    'Benches',
+    'Sofas',
   ],
   Storage: [
-    'Cabinets',
+    'All Storage',
     'Bookcases',
-    'TV Stands',
+    'Cabinets',
+    'Credenzas',
     'Dressers',
+    'TV Stands',
   ],
   Beds: [
-    'Platform Beds',
+    'All Beds',
     'Canopy Beds',
     'Daybeds',
     'Headboards',
+    'Platform Beds',
   ],
 } as const;
 
@@ -148,7 +153,11 @@ export const subcategory_map = {
   'stools': 'stool',
   'cabinets': 'cabinet',
   'platform beds': 'bed',
+  'headboards': 'headboard',
   'beds': 'bed',
+  'seating': 'seating',
+  'tables': 'tables',
+  'storage': 'storage',
 } as const;
 
 export const room_map = {

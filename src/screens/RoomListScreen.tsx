@@ -19,11 +19,6 @@ interface Category {
 
 const roomCategories: Category[] = [
   { 
-    id: 'living-room', 
-    title: 'Living Room',
-    image: require('@/assets/images/categories/shop-by-room.png')
-  },
-  { 
     id: 'bedroom', 
     title: 'Bedroom', 
     image: require('@/assets/images/categories/bedroom-img.png')
@@ -32,6 +27,11 @@ const roomCategories: Category[] = [
     id: 'dining-room', 
     title: 'Dining & Kitchen', 
     image: require('@/assets/images/categories/dining-img.png')
+  },
+  { 
+    id: 'living-room', 
+    title: 'Living Room',
+    image: require('@/assets/images/categories/shop-by-room.png')
   },
   { 
     id: 'office',

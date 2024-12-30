@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Portal, Text, Button, List, useTheme, Divider, Snackbar } from 'react-native-paper';
+import { Portal, Text, Button, List, useTheme, Divider, Snackbar, Icon } from 'react-native-paper';
 import { useWishlists, useAddToWishlist, useRemoveFromWishlist, Wishlist } from '@/hooks/api/useWishlists';
 import { CreateWishlistModal } from '@/components/wishlist/CreateWishlistModal';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,8 +11,6 @@ interface Props {
   onDismiss: () => void;
   furnitureId: string;
 }
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export function AddToWishlistDrawer({ visible, onDismiss, furnitureId }: Props) {
   const theme = useTheme();
@@ -157,19 +155,20 @@ export function AddToWishlistDrawer({ visible, onDismiss, furnitureId }: Props) 
               <View style={styles.buttonContainer}>
                 <Button
                   mode="contained"
-                  onPress={() => setCreateModalVisible(true)}
-                  style={styles.createButton}
-                  disabled={isPending}
-                >
-                  Create New Wishlist
-                </Button>
-                <Button
-                  mode="text"
                   onPress={onDismiss}
                   style={styles.cancelButton}
                   disabled={isPending}
                 >
                   Done
+                </Button>
+                <Button
+                  mode="text"
+                  onPress={() => setCreateModalVisible(true)}
+                  style={styles.createButton}
+                  disabled={isPending}
+                  icon="plus"
+                >
+                  Create New Wishlist
                 </Button>
               </View>
             </BottomSheetView>
@@ -249,10 +248,10 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 'auto',
   },
-  createButton: {
+  cancelButton: {
     marginBottom: 8,
   },
-  cancelButton: {
-    marginBottom: 0,
+  createButton: {
+    marginBottom: 8,
   },
 }); 
